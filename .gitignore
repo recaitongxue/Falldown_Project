@@ -1,0 +1,62 @@
+# 模型和检查点 - 不上传到 GitHub
+back/finallmodel/model/checkpoints/
+back/finallmodel/model/__pycache__/
+*.pt
+*.pth
+*.h5
+*.pkl
+
+# 数据集 - 不上传到 GitHub
+back/finallmodel/dataset/
+back/finallmodel/1122.mp4
+back/uploads/
+back/output/
+*.mp4
+*.avi
+*.mov
+*.mkv
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Frontend build
+frontend/dist/
+frontend/.DS_Store
+
+# Environment
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
