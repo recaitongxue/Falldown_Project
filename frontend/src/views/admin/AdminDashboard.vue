@@ -38,24 +38,21 @@
       <div class="chart-card">
         <h3>用户增长趋势</h3>
         <div class="mini-chart">
-          <div class="chart-bar" style="height: 40%">1月</div>
-          <div class="chart-bar" style="height: 55%">2月</div>
-          <div class="chart-bar" style="height: 45%">3月</div>
-          <div class="chart-bar" style="height: 70%">4月</div>
-          <div class="chart-bar" style="height: 85%">5月</div>
-          <div class="chart-bar" style="height: 65%">6月</div>
+          <div v-for="(item, index) in userGrowthData" :key="index" class="chart-bar" :style="{ height: item.percentage + '%' }">
+            {{ item.month }}
+          </div>
         </div>
       </div>
       
       <div class="chart-card">
         <h3>检测类型分布</h3>
         <div class="pie-chart">
-          <div class="pie-slice fall" style="--percentage: 35%">跌倒</div>
-          <div class="pie-slice normal" style="--percentage: 65%">正常</div>
+          <div class="pie-slice fall" :style="{ '--percentage': fallRate + '%' }">跌倒</div>
+          <div class="pie-slice normal" :style="{ '--percentage': (100 - fallRate) + '%' }">正常</div>
         </div>
         <div class="legend">
-          <span class="legend-item"><span class="dot fall"></span> 跌倒 35%</span>
-          <span class="legend-item"><span class="dot normal"></span> 正常 65%</span>
+          <span class="legend-item"><span class="dot fall"></span> 跌倒 {{ fallRate }}%</span>
+          <span class="legend-item"><span class="dot normal"></span> 正常 {{ 100 - fallRate }}%</span>
         </div>
       </div>
     </div>
@@ -120,11 +117,14 @@ const stats = ref({
   total_users: 0,
   total_analyses: 0,
   pending_alerts: 0,
-  fall_count: 0
+  fall_count: 0,
+  normal_count: 0
 })
 
 const recentAlerts = ref([])
 const ollamaStatus = ref(false)
+const userGrowthData = ref([])
+const fallRate = ref(0)
 
 const formatTime = (dateStr) => {
   if (!dateStr) return ''
@@ -145,10 +145,36 @@ const loadStats = async () => {
       total_users: data.total_users || 0,
       total_analyses: data.total_analyses || 0,
       pending_alerts: data.pending_alerts || 0,
-      fall_count: data.fall_count || 0
+      fall_count: data.fall_count || 0,
+      normal_count: data.normal_count || 0
     }
+    fallRate.value = data.fall_rate || 0
+    
+    // 加载用户增长趋势数据
+    await loadUserGrowth()
   } catch (e) {
     console.error('获取统计数据失败', e)
+  }
+}
+
+const loadUserGrowth = async () => {
+  try {
+    const resp = await fetch('/api/statistics/daily?range=7d', { credentials: 'include' })
+    const data = await resp.json()
+    const dailyData = data.data || []
+    
+    // 转换为图表数据 - 显示日期格式 (如 "5/19")
+    const maxUsers = Math.max(...dailyData.map(d => d.users), 1)
+    userGrowthData.value = dailyData.map(d => {
+      const date = new Date(d.date)
+      return {
+        month: (date.getMonth() + 1) + '/' + date.getDate(),
+        percentage: Math.round((d.users / maxUsers) * 100)
+      }
+    })
+  } catch (e) {
+    console.error('获取用户增长数据失败', e)
+    userGrowthData.value = []
   }
 }
 

@@ -123,9 +123,10 @@
 <script setup>
 import { ref } from 'vue'
 
-const isDragging = ref(false)
+const userInfo = ref(sessionStorage.getItem('user') ? JSON.parse(sessionStorage.getItem('user')) : null)
+const userId = ref(userInfo.value?.id || 1)
 const selectedFile = ref(null)
-const isAnalyzing = ref(false)
+const isDragging = ref(false)
 const analysisProgress = ref(0)
 const analysisInfo = ref('')
 const analysisResults = ref(null)
@@ -210,6 +211,7 @@ const startAnalysis = async () => {
       body: JSON.stringify({
         filepath: uploadData.filepath,
         file_type: 'video',
+        user_id: userId.value,
         mode: detectionMode.value,
         show_labels: showLabels.value,
         show_bboxes: showBboxes.value,

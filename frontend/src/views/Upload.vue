@@ -200,7 +200,9 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
-const user = ref(sessionStorage.getItem('user') ? JSON.parse(sessionStorage.getItem('user')).username : 'Admin')
+const userInfo = ref(sessionStorage.getItem('user') ? JSON.parse(sessionStorage.getItem('user')) : null)
+const user = ref(userInfo.value?.username || 'Admin')
+const userId = ref(userInfo.value?.id || 1)
 const activeTab = ref('video')
 const selectedFile = ref(null)
 const analyzing = ref(false)
@@ -309,7 +311,7 @@ async function processFile(file, type) {
     const detectResp = await fetch('/api/detect/file', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ filepath: uploadData.filepath, file_type: type })
+      body: JSON.stringify({ filepath: uploadData.filepath, file_type: type, user_id: userId.value })
     })
     const detectData = await detectResp.json()
 
@@ -370,7 +372,7 @@ async function processBatch() {
         const detectResp = await fetch('/api/detect/file', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ filepath: result.filepath, file_type: result.file_type })
+          body: JSON.stringify({ filepath: result.filepath, file_type: result.file_type, user_id: userId.value })
         })
         const detectData = await detectResp.json()
         

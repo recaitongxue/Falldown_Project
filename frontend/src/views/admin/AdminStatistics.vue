@@ -114,7 +114,7 @@
             <span class="user-email">{{ user.email }}</span>
           </div>
           <div class="user-stats">
-            <span class="user-analyses">{{ user.analysis_count }} 次分析</span>
+            <span class="user-analyses">{{ user.detections }} 次分析</span>
           </div>
         </div>
         

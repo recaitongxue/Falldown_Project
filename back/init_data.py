@@ -8,7 +8,7 @@ import datetime
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from app import app, db, DetectionRecord, AlertRecord, User
+from exsampy_app import app, db, DetectionRecord, AlertRecord, User
 from werkzeug.security import generate_password_hash
 
 def init_sample_data():

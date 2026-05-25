@@ -424,6 +424,7 @@ def detect_video():
     """检测视频文件 - 优化版本（支持中文文件名）"""
     data = request.get_json()
     filepath = data.get('filepath')
+    user_id = data.get('user_id', 1)  # 获取用户ID，默认为1（admin）
     mode = data.get('mode', 'fast')
     show_labels = data.get('show_labels', True)
     show_bboxes = data.get('show_bboxes', True)
@@ -471,6 +472,7 @@ def detect_video():
         
         # 保存到数据库
         record = DetectionRecord(
+            user_id=user_id,
             filename=original_filename,
             file_path=filepath,
             output_path=output_video,
@@ -488,7 +490,7 @@ def detect_video():
         for alert in result.get('alerts', []):
             alert_record = AlertRecord(
                 detection_id=record.id,
-                user_id=1,  # 默认用户
+                user_id=user_id,
                 frame_number=alert['frame_number'],
                 timestamp=alert['timestamp'],
                 behavior=alert['behavior'],
@@ -728,18 +730,22 @@ def get_history_detail(record_id):
 @app.route('/api/statistics', methods=['GET'])
 def get_statistics():
     """获取统计数据"""
+    total_users = User.query.count()
     total_records = DetectionRecord.query.count()
     fall_records = DetectionRecord.query.filter_by(fall_detected=True).count()
     normal_records = DetectionRecord.query.filter_by(fall_detected=False).count()
-    total_alerts = AlertRecord.query.count()
+    pending_alerts = Alert.query.filter_by(acknowledged=False).count()
+    total_alerts = Alert.query.count()
     
     return jsonify({
         'success': True,
+        'total_users': total_users,
         'total_analyses': total_records,
-        'alert_count': total_alerts,
+        'pending_alerts': pending_alerts,
+        'total_alerts': total_alerts,
         'fall_count': fall_records,
         'normal_count': normal_records,
-        'fall_rate': fall_records / max(total_records, 1) * 100
+        'fall_rate': round(fall_records / max(total_records, 1) * 100, 2)
     }), 200
 
 
@@ -1101,11 +1107,19 @@ def auth_login():
 # 告警相关API
 @app.route('/api/alerts', methods=['GET'])
 def get_alerts():
-    """获取告警列表"""
-    alerts = AlertRecord.query.order_by(AlertRecord.created_at.desc()).all()
+    """获取告警列表（支持分页）"""
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+    
+    query = Alert.query.order_by(Alert.sent_at.desc())
+    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+    
     return jsonify({
         'success': True,
-        'data': [alert.to_dict() for alert in alerts]
+        'data': [alert.to_dict() for alert in pagination.items],
+        'total': pagination.total,
+        'page': page,
+        'per_page': per_page
     }), 200
 
 
@@ -1202,6 +1216,153 @@ def add_camera():
     }), 201
 
 
+@app.route('/api/cameras/<int:camera_id>', methods=['GET'])
+def get_camera(camera_id):
+    """获取单个摄像头信息"""
+    camera = Camera.query.get(camera_id)
+    if not camera:
+        return jsonify({'success': False, 'error': '摄像头不存在'}), 404
+    
+    return jsonify({
+        'success': True,
+        'data': camera.to_dict()
+    }), 200
+
+
+@app.route('/api/cameras/<int:camera_id>', methods=['PUT'])
+def update_camera(camera_id):
+    """更新摄像头信息"""
+    camera = Camera.query.get(camera_id)
+    if not camera:
+        return jsonify({'success': False, 'error': '摄像头不存在'}), 404
+    
+    data = request.get_json()
+    if not data:
+        return jsonify({'success': False, 'error': '请求数据不能为空'}), 400
+    
+    # 更新字段
+    if 'name' in data:
+        camera.name = data['name']
+    if 'location' in data:
+        camera.location = data['location']
+    if 'camera_type' in data:
+        camera.camera_type = data['camera_type']
+    if 'url' in data:
+        camera.url = data['url']
+    if 'resolution' in data:
+        camera.resolution = data['resolution']
+    if 'fps' in data:
+        camera.fps = data['fps']
+    if 'is_active' in data:
+        camera.is_active = data['is_active']
+    if 'status' in data:
+        camera.status = data['status']
+    
+    db.session.commit()
+    
+    return jsonify({
+        'success': True,
+        'message': '摄像头更新成功',
+        'data': camera.to_dict()
+    }), 200
+
+
+@app.route('/api/cameras/<int:camera_id>', methods=['DELETE'])
+def delete_camera(camera_id):
+    """删除摄像头"""
+    camera = Camera.query.get(camera_id)
+    if not camera:
+        return jsonify({'success': False, 'error': '摄像头不存在'}), 404
+    
+    db.session.delete(camera)
+    db.session.commit()
+    
+    return jsonify({
+        'success': True,
+        'message': '摄像头删除成功'
+    }), 200
+
+
+@app.route('/api/cameras/<int:camera_id>/status', methods=['PUT'])
+def update_camera_status(camera_id):
+    """更新摄像头状态（在线/离线）"""
+    camera = Camera.query.get(camera_id)
+    if not camera:
+        return jsonify({'success': False, 'error': '摄像头不存在'}), 404
+    
+    data = request.get_json()
+    if 'status' in data:
+        camera.status = data['status']
+    if 'is_active' in data:
+        camera.is_active = data['is_active']
+    
+    db.session.commit()
+    
+    return jsonify({
+        'success': True,
+        'message': '摄像头状态更新成功',
+        'data': camera.to_dict()
+    }), 200
+
+
+@app.route('/api/stream/<int:camera_id>', methods=['GET'])
+def camera_stream(camera_id):
+    """获取摄像头实时流"""
+    camera = Camera.query.get(camera_id)
+    if not camera:
+        return jsonify({'success': False, 'error': '摄像头不存在'}), 404
+    
+    if not camera.url:
+        return jsonify({'success': False, 'error': '摄像头URL未设置'}), 400
+    
+    from flask import Response
+    import cv2
+    import threading
+    
+    # 全局变量存储摄像头帧
+    global camera_frames
+    if 'camera_frames' not in globals():
+        camera_frames = {}
+    
+    def generate_frames():
+        cap = cv2.VideoCapture(camera.url)
+        
+        if not cap.isOpened():
+            camera.status = 'offline'
+            db.session.commit()
+            return
+        
+        camera.status = 'online'
+        camera.last_check = datetime.datetime.now()
+        db.session.commit()
+        
+        try:
+            while True:
+                success, frame = cap.read()
+                if not success:
+                    break
+                
+                # 编码为JPEG
+                ret, buffer = cv2.imencode('.jpg', frame)
+                if not ret:
+                    continue
+                
+                frame_bytes = buffer.tobytes()
+                camera_frames[camera_id] = frame_bytes
+                
+                yield (b'--frame\r\n'
+                       b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+        except Exception as e:
+            print(f"Stream error for camera {camera_id}: {e}")
+        finally:
+            cap.release()
+            camera.status = 'offline'
+            db.session.commit()
+    
+    return Response(generate_frames(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
 # 管理员端API
 
 @app.route('/api/status', methods=['GET'])
@@ -1217,7 +1378,7 @@ def get_system_status():
     
     return jsonify({
         'success': True,
-        'status': 'running',
+        'status': 'ok',
         'services': {
             'backend': 'online',
             'database': 'online',
@@ -1253,6 +1414,39 @@ def ollama_status():
         return jsonify({
             'success': False,
             'available': False,
+            'error': str(e)
+        }), 200
+
+
+@app.route('/api/ai/ollama/models', methods=['GET'])
+def ollama_models():
+    """获取可用的Ollama模型列表"""
+    import requests
+    try:
+        host = _get_ollama_host()
+        resp = requests.get(f"{host}/api/tags", timeout=5)
+        if resp.status_code == 200:
+            data = resp.json()
+            models = []
+            for m in data.get('models', []):
+                models.append({
+                    'name': m.get('name', ''),
+                    'model': m.get('model', ''),
+                    'size': m.get('size', 0),
+                    'modified_at': m.get('modified_at', '')
+                })
+            return jsonify({
+                'success': True,
+                'models': models
+            }), 200
+        else:
+            return jsonify({
+                'success': False,
+                'error': f"API returned status {resp.status_code}"
+            }), 200
+    except Exception as e:
+        return jsonify({
+            'success': False,
             'error': str(e)
         }), 200
 
@@ -1388,20 +1582,42 @@ def reset_user_password(user_id):
 
 @app.route('/api/statistics/daily', methods=['GET'])
 def get_daily_statistics():
-    """获取每日统计数据"""
-    import random
+    """获取每日统计数据（从数据库查询真实数据）"""
     range_days = request.args.get('range', '7d')
     days = int(range_days.replace('d', ''))
     
     statistics = []
     today = datetime.date.today()
+    
     for i in range(days):
         date = today - datetime.timedelta(days=i)
+        date_start = datetime.datetime.combine(date, datetime.time.min)
+        date_end = datetime.datetime.combine(date, datetime.time.max)
+        
+        # 查询当天的检测记录
+        daily_detections = DetectionRecord.query.filter(
+            DetectionRecord.created_at >= date_start,
+            DetectionRecord.created_at <= date_end
+        ).count()
+        
+        # 查询当天的跌倒检测
+        daily_falls = DetectionRecord.query.filter(
+            DetectionRecord.created_at >= date_start,
+            DetectionRecord.created_at <= date_end,
+            DetectionRecord.fall_detected == True
+        ).count()
+        
+        # 查询当天活跃用户数（有检测记录的用户）
+        daily_users = db.session.query(db.func.count(db.distinct(DetectionRecord.user_id))).filter(
+            DetectionRecord.created_at >= date_start,
+            DetectionRecord.created_at <= date_end
+        ).scalar() or 0
+        
         statistics.append({
             'date': date.isoformat(),
-            'detections': random.randint(50, 200),
-            'falls': random.randint(0, 15),
-            'users': random.randint(10, 50)
+            'detections': daily_detections,
+            'falls': daily_falls,
+            'users': daily_users
         })
     
     statistics.reverse()
@@ -1415,22 +1631,45 @@ def get_daily_statistics():
 
 @app.route('/api/statistics/top-users', methods=['GET'])
 def get_top_users():
-    """获取活跃用户排名"""
-    import random
-    users = User.query.all()[:10]
-    top_users = []
+    """获取活跃用户排名（基于真实检测数据）"""
+    # 查询每个用户的检测统计数据
+    user_stats = db.session.query(
+        User.id,
+        User.username,
+        User.email,
+        db.func.count(DetectionRecord.id).label('detection_count'),
+        db.func.sum(db.case((DetectionRecord.fall_detected == True, 1), else_=0)).label('fall_count')
+    ).outerjoin(
+        DetectionRecord, User.id == DetectionRecord.user_id
+    ).group_by(
+        User.id, User.username, User.email
+    ).order_by(
+        db.func.count(DetectionRecord.id).desc()
+    ).limit(10).all()
     
-    for user in users:
+    top_users = []
+    for user in user_stats:
+        detection_count = user.detection_count or 0
+        fall_count = user.fall_count or 0
+        
+        # 计算风险等级
+        if fall_count == 0:
+            risk_level = 'low'
+        elif fall_count / max(detection_count, 1) < 0.1:
+            risk_level = 'low'
+        elif fall_count / max(detection_count, 1) < 0.3:
+            risk_level = 'medium'
+        else:
+            risk_level = 'high'
+        
         top_users.append({
             'id': user.id,
             'username': user.username,
             'email': user.email,
-            'detections': random.randint(100, 1000),
-            'fall_events': random.randint(0, 50),
-            'risk_level': 'low' if random.random() > 0.3 else 'medium'
+            'detections': detection_count,
+            'fall_events': fall_count,
+            'risk_level': risk_level
         })
-    
-    top_users.sort(key=lambda x: x['detections'], reverse=True)
     
     return jsonify({
         'success': True,
