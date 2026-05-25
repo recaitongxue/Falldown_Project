@@ -15,16 +15,10 @@
         </div>
         
         <div class="camera-preview">
-          <div class="preview-placeholder" v-if="cam.status === 'offline'">
+          <div class="preview-placeholder">
             <span class="icon">📷</span>
-            <p>摄像头离线</p>
-          </div>
-          <div class="preview-online" v-else>
-            <img :src="getCameraPreview(cam)" alt="摄像头预览" class="preview-image" />
-            <div class="live-indicator">
-              <span class="live-dot"></span>
-              <span>LIVE</span>
-            </div>
+            <p>管理员端仅显示摄像头信息</p>
+            <p class="hint">实时视频仅对创建者可见</p>
           </div>
         </div>
         
@@ -42,13 +36,16 @@
             <span class="value">{{ cam.url.substring(0, 30) }}...</span>
           </div>
           <div class="info-row">
+            <span class="label">👤 创建者:</span>
+            <span class="value">{{ cam.username || '未知' }}</span>
+          </div>
+          <div class="info-row">
             <span class="label">⏰ 最后检测:</span>
-            <span class="value">{{ cam.last_detection || '从未检测' }}</span>
+            <span class="value">{{ cam.last_check ? formatDateTime(cam.last_check) : '从未检测' }}</span>
           </div>
         </div>
         
         <div class="camera-actions">
-          <el-button size="small" type="primary" @click="viewCamera(cam)">查看</el-button>
           <el-button size="small" @click="editCamera(cam)">编辑</el-button>
           <el-button size="small" type="danger" @click="deleteCamera(cam.id)">删除</el-button>
         </div>
@@ -89,37 +86,6 @@
       </template>
     </el-dialog>
 
-    <el-dialog v-model="showViewDialog" title="摄像头监控" width="800px">
-      <div v-if="selectedCamera" class="view-camera">
-        <div class="view-preview">
-          <div class="preview-container">
-            <img :src="selectedCamera.url ? `/api/stream/${selectedCamera.id}` : ''" 
-                 alt="实时画面" 
-                 class="stream-image"
-                 @error="handleStreamError" />
-            <div class="stream-overlay" v-if="!streamOnline">
-              <span class="stream-error">📡 连接失败，请检查摄像头</span>
-            </div>
-          </div>
-          <div class="stream-controls">
-            <el-button type="primary" @click="toggleStream">
-              {{ streamPlaying ? '⏸️ 暂停' : '▶️ 播放' }}
-            </el-button>
-            <el-button type="success" @click="captureSnapshot">📸 截图</el-button>
-            <el-button @click="startDetection">✅ 开始检测</el-button>
-          </div>
-        </div>
-        <div class="view-info">
-          <h4>摄像头信息</h4>
-          <div class="info-grid">
-            <div class="info-item">名称: {{ selectedCamera.name }}</div>
-            <div class="info-item">位置: {{ selectedCamera.location }}</div>
-            <div class="info-item">类型: {{ getCameraTypeName(selectedCamera.camera_type) }}</div>
-            <div class="info-item">状态: {{ selectedCamera.status }}</div>
-          </div>
-        </div>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
@@ -129,10 +95,6 @@ import { ElMessage } from 'element-plus'
 
 const cameras = ref([])
 const showAddDialog = ref(false)
-const showViewDialog = ref(false)
-const selectedCamera = ref(null)
-const streamOnline = ref(true)
-const streamPlaying = ref(true)
 
 const cameraForm = reactive({ 
   id: null,
@@ -165,8 +127,16 @@ function getCameraTypeName(type) {
   return types[type] || type
 }
 
-function getCameraPreview(cam) {
-  return cam.url ? `/api/stream/${cam.id}` : ''
+function formatDateTime(dateStr) {
+  const date = new Date(dateStr)
+  return date.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  })
 }
 
 function addCamera() {
@@ -230,29 +200,6 @@ async function deleteCamera(id) {
   } catch (e) {
     ElMessage.error('删除失败')
   }
-}
-
-function viewCamera(cam) {
-  selectedCamera.value = cam
-  streamOnline.value = true
-  streamPlaying.value = true
-  showViewDialog.value = true
-}
-
-function toggleStream() {
-  streamPlaying.value = !streamPlaying.value
-}
-
-function captureSnapshot() {
-  ElMessage.success('截图功能开发中')
-}
-
-function startDetection() {
-  ElMessage.success('已开始跌倒检测')
-}
-
-function handleStreamError() {
-  streamOnline.value = false
 }
 </script>
 

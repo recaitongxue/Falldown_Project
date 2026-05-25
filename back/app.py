@@ -1159,30 +1159,73 @@ def clear_alerts():
 
 
 # 用户认证API
+def get_current_user_info():
+    """获取当前用户信息（从session或请求中）"""
+    # 尝试从请求头获取用户ID
+    user_id = request.headers.get('X-User-Id')
+    if user_id:
+        user = User.query.get(int(user_id))
+        if user:
+            return {'id': user.id, 'username': user.username, 'email': user.email}
+    
+    # 默认返回admin用户（用于测试）
+    return {'id': 1, 'username': 'admin', 'email': 'admin@example.com'}
+
+
 @app.route('/api/auth/current', methods=['GET'])
 def get_current_user():
     """获取当前用户信息（模拟登录状态）"""
-    # 这里应该从session或token获取用户信息
-    # 目前返回模拟数据
+    user_info = get_current_user_info()
     return jsonify({
         'success': True,
-        'user': {
-            'id': 1,
-            'username': 'admin',
-            'email': 'admin@example.com'
-        }
+        'user': user_info
     }), 200
 
 
 # 摄像头管理API
 @app.route('/api/cameras', methods=['GET'])
 def get_cameras():
-    """获取摄像头列表"""
-    # 从数据库读取摄像头列表
-    cameras = Camera.query.all()
+    """获取摄像头列表（包含创建者信息）- 管理员端使用"""
+    # 从数据库读取摄像头列表，关联用户表
+    cameras = Camera.query.join(User, Camera.user_id == User.id).all()
+    
+    camera_list = []
+    for camera in cameras:
+        camera_dict = camera.to_dict()
+        camera_dict['username'] = camera.user.username if camera.user else '未知'
+        camera_dict['user_email'] = camera.user.email if camera.user else ''
+        camera_list.append(camera_dict)
+    
     return jsonify({
         'success': True,
-        'cameras': [camera.to_dict() for camera in cameras]
+        'data': camera_list,
+        'total': len(camera_list)
+    }), 200
+
+
+@app.route('/api/user/cameras', methods=['GET'])
+def get_user_cameras():
+    """获取当前用户的摄像头列表"""
+    user_info = get_current_user_info()
+    if not user_info:
+        return jsonify({'success': False, 'error': '用户未登录'}), 401
+    
+    user_id = user_info.get('id', 1)
+    
+    # 只获取当前用户的摄像头
+    cameras = Camera.query.filter_by(user_id=user_id).all()
+    
+    camera_list = []
+    for camera in cameras:
+        camera_dict = camera.to_dict()
+        camera_dict['username'] = user_info.get('username', '未知')
+        camera_dict['user_email'] = user_info.get('email', '')
+        camera_list.append(camera_dict)
+    
+    return jsonify({
+        'success': True,
+        'data': camera_list,
+        'total': len(camera_list)
     }), 200
 
 
@@ -1203,7 +1246,7 @@ def add_camera():
         fps=data.get('fps', 25),
         status='offline',
         is_active=True,
-        user_id=1  # 默认用户ID
+        user_id=data.get('user_id', 1)  # 使用请求中的user_id，默认1
     )
     
     db.session.add(new_camera)
@@ -1317,24 +1360,24 @@ def camera_stream(camera_id):
     
     from flask import Response
     import cv2
-    import threading
-    
-    # 全局变量存储摄像头帧
-    global camera_frames
-    if 'camera_frames' not in globals():
-        camera_frames = {}
     
     def generate_frames():
         cap = cv2.VideoCapture(camera.url)
         
         if not cap.isOpened():
-            camera.status = 'offline'
-            db.session.commit()
+            with app.app_context():
+                cam = Camera.query.get(camera_id)
+                if cam:
+                    cam.status = 'offline'
+                    db.session.commit()
             return
         
-        camera.status = 'online'
-        camera.last_check = datetime.datetime.now()
-        db.session.commit()
+        with app.app_context():
+            cam = Camera.query.get(camera_id)
+            if cam:
+                cam.status = 'online'
+                cam.last_check = datetime.datetime.now()
+                db.session.commit()
         
         try:
             while True:
@@ -1347,17 +1390,17 @@ def camera_stream(camera_id):
                 if not ret:
                     continue
                 
-                frame_bytes = buffer.tobytes()
-                camera_frames[camera_id] = frame_bytes
-                
                 yield (b'--frame\r\n'
-                       b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+                       b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
         except Exception as e:
             print(f"Stream error for camera {camera_id}: {e}")
         finally:
             cap.release()
-            camera.status = 'offline'
-            db.session.commit()
+            with app.app_context():
+                cam = Camera.query.get(camera_id)
+                if cam:
+                    cam.status = 'offline'
+                    db.session.commit()
     
     return Response(generate_frames(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')

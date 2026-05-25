@@ -174,6 +174,10 @@ const showAddDialog = ref(false)
 const showViewDialog = ref(false)
 const selectedCamera = ref(null)
 
+// 获取当前用户信息
+const userInfo = ref(sessionStorage.getItem('user') ? JSON.parse(sessionStorage.getItem('user')) : null)
+const userId = ref(userInfo.value?.id || 1)
+
 const cameraForm = reactive({ 
   id: null,
   name: '', 
@@ -187,9 +191,13 @@ onMounted(fetchCameras)
 
 async function fetchCameras() {
   try {
-    const resp = await fetch('/api/cameras')
+    const resp = await fetch('/api/user/cameras', {
+      headers: {
+        'X-User-Id': userId.value
+      }
+    })
     const data = await resp.json()
-    cameras.value = data.cameras || []
+    cameras.value = data.data || []
   } catch (e) {
     console.error(e)
   }
@@ -233,10 +241,12 @@ async function saveCamera() {
     const method = cameraForm.id ? 'PUT' : 'POST'
     const url = cameraForm.id ? `/api/cameras/${cameraForm.id}` : '/api/cameras'
     
+    const formData = { ...cameraForm, user_id: userId.value }
+    
     await fetch(url, {
       method: method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(cameraForm)
+      body: JSON.stringify(formData)
     })
     
     ElMessage.success(cameraForm.id ? '摄像头已更新' : '摄像头添加成功')
