@@ -155,9 +155,17 @@ const fallPercentage = computed(() => {
   return ((statistics.value.fall_count / total) * 100).toFixed(1)
 })
 
+const userInfo = ref(sessionStorage.getItem('user') ? JSON.parse(sessionStorage.getItem('user')) : null)
+const userId = ref(userInfo.value?.id || 1)
+
 const loadStatistics = async () => {
   try {
-    const resp = await fetch(`/api/statistics?range=${timeRange.value}`, { credentials: 'include' })
+    const resp = await fetch(`/api/statistics`, { 
+      credentials: 'include',
+      headers: {
+        'X-User-Id': userId.value
+      }
+    })
     const data = await resp.json()
     statistics.value = data
   } catch (e) {
@@ -167,7 +175,12 @@ const loadStatistics = async () => {
 
 const loadDailyTrend = async () => {
   try {
-    const resp = await fetch(`/api/statistics/daily?range=${timeRange.value}`, { credentials: 'include' })
+    const resp = await fetch(`/api/statistics/daily?range=${timeRange.value}`, { 
+      credentials: 'include',
+      headers: {
+        'X-User-Id': userId.value
+      }
+    })
     const data = await resp.json()
     dailyTrend.value = data.data || []
   } catch (e) {
@@ -177,7 +190,12 @@ const loadDailyTrend = async () => {
 
 const loadTopUsers = async () => {
   try {
-    const resp = await fetch('/api/statistics/top-users', { credentials: 'include' })
+    const resp = await fetch('/api/statistics/top-users', { 
+      credentials: 'include',
+      headers: {
+        'X-User-Id': userId.value
+      }
+    })
     const data = await resp.json()
     topUsers.value = data.data || []
   } catch (e) {

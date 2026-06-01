@@ -113,6 +113,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 
+const userInfo = ref(sessionStorage.getItem('user') ? JSON.parse(sessionStorage.getItem('user')) : null)
+const userId = ref(userInfo.value?.id || 1)
+
 const stats = ref({
   total_users: 0,
   total_analyses: 0,
@@ -139,7 +142,12 @@ const formatTime = (dateStr) => {
 
 const loadStats = async () => {
   try {
-    const resp = await fetch('/api/statistics', { credentials: 'include' })
+    const resp = await fetch('/api/statistics', { 
+      credentials: 'include',
+      headers: {
+        'X-User-Id': userId.value
+      }
+    })
     const data = await resp.json()
     stats.value = {
       total_users: data.total_users || 0,
@@ -159,7 +167,12 @@ const loadStats = async () => {
 
 const loadUserGrowth = async () => {
   try {
-    const resp = await fetch('/api/statistics/daily?range=7d', { credentials: 'include' })
+    const resp = await fetch('/api/statistics/daily?range=7d', { 
+      credentials: 'include',
+      headers: {
+        'X-User-Id': userId.value
+      }
+    })
     const data = await resp.json()
     const dailyData = data.data || []
     

@@ -729,8 +729,16 @@ def get_history_detail(record_id):
 
 @app.route('/api/statistics', methods=['GET'])
 def get_statistics():
-    """获取统计数据（按用户ID过滤）"""
+    """获取统计数据（按用户 ID 过滤）"""
     user_info = get_current_user_info()
+    
+    # 如果没有用户信息，返回错误
+    if not user_info:
+        return jsonify({
+            'success': False,
+            'error': '用户未登录'
+        }), 401
+    
     user_id = user_info.get('id', 1)
     
     # 管理员查看所有数据，普通用户只查看自己的数据
@@ -740,31 +748,58 @@ def get_statistics():
         normal_records = DetectionRecord.query.filter_by(fall_detected=False).count()
         total_alerts = Alert.query.count()
         pending_alerts = Alert.query.filter_by(acknowledged=False).count()
+        
+        # 统计管理员和普通用户数量
+        admin_count = User.query.filter_by(username='admin').count()
+        user_count = User.query.filter(User.username != 'admin').count()
     else:
         total_records = DetectionRecord.query.filter_by(user_id=user_id).count()
         fall_records = DetectionRecord.query.filter_by(user_id=user_id, fall_detected=True).count()
         normal_records = DetectionRecord.query.filter_by(user_id=user_id, fall_detected=False).count()
         total_alerts = Alert.query.filter_by(user_id=user_id).count()
         pending_alerts = Alert.query.filter_by(user_id=user_id, acknowledged=False).count()
+        
+        admin_count = 0
+        user_count = 0
     
     total_users = User.query.count()
+    
+    # 计算成功率（有输出文件的记录数）
+    success_records = DetectionRecord.query.filter(
+        DetectionRecord.output_path.isnot(None)
+    ).count() if user_info.get('username') == 'admin' else DetectionRecord.query.filter_by(
+        user_id=user_id
+    ).filter(
+        DetectionRecord.output_path.isnot(None)
+    ).count()
     
     return jsonify({
         'success': True,
         'total_users': total_users,
+        'admin_count': admin_count,
+        'user_count': user_count,
         'total_analyses': total_records,
         'pending_alerts': pending_alerts,
         'total_alerts': total_alerts,
         'fall_count': fall_records,
         'normal_count': normal_records,
-        'fall_rate': round(fall_records / max(total_records, 1) * 100, 2)
+        'fall_rate': round(fall_records / max(total_records, 1) * 100, 2),
+        'success_rate': round(success_records / max(total_records, 1) * 100, 2)
     }), 200
 
 
 @app.route('/api/analysis/records', methods=['GET'])
 def get_analysis_records():
-    """获取分析记录（分页，按用户ID过滤）"""
+    """获取分析记录（分页，按用户 ID 过滤）"""
     user_info = get_current_user_info()
+    
+    # 如果没有用户信息，返回错误
+    if not user_info:
+        return jsonify({
+            'success': False,
+            'error': '用户未登录'
+        }), 401
+    
     user_id = user_info.get('id', 1)
     
     page = int(request.args.get('page', 1))
@@ -1654,6 +1689,15 @@ def reset_user_password(user_id):
 @app.route('/api/statistics/daily', methods=['GET'])
 def get_daily_statistics():
     """获取每日统计数据（从数据库查询真实数据）"""
+    user_info = get_current_user_info()
+    
+    # 如果没有用户信息，返回错误
+    if not user_info:
+        return jsonify({
+            'success': False,
+            'error': '用户未登录'
+        }), 401
+    
     range_days = request.args.get('range', '7d')
     days = int(range_days.replace('d', ''))
     
@@ -1703,6 +1747,15 @@ def get_daily_statistics():
 @app.route('/api/statistics/top-users', methods=['GET'])
 def get_top_users():
     """获取活跃用户排名（基于真实检测数据）"""
+    user_info = get_current_user_info()
+    
+    # 如果没有用户信息，返回错误
+    if not user_info:
+        return jsonify({
+            'success': False,
+            'error': '用户未登录'
+        }), 401
+    
     # 查询每个用户的检测统计数据
     user_stats = db.session.query(
         User.id,
