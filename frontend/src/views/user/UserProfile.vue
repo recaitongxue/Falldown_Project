@@ -69,6 +69,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 
+const userInfo = ref(sessionStorage.getItem('user') ? JSON.parse(sessionStorage.getItem('user')) : null)
+const userId = ref(userInfo.value?.id || 1)
+
 const user = ref(null)
 const oldPassword = ref('')
 const newPassword = ref('')
@@ -82,10 +85,20 @@ const formatDate = (dateStr) => {
 
 const loadUser = async () => {
   try {
-    const resp = await fetch('/api/auth/current', { credentials: 'include' })
+    const resp = await fetch('/api/auth/current', { 
+      credentials: 'include',
+      headers: {
+        'X-User-Id': userId.value
+      }
+    })
     const data = await resp.json()
-    if (resp.ok) {
+    if (resp.ok && data.success) {
       user.value = data.user
+    } else {
+      // 用户未登录，跳转到登录页
+      console.error('用户未登录', data.error)
+      sessionStorage.removeItem('user')
+      window.location.href = '/login'
     }
   } catch (e) {
     console.error('获取用户信息失败', e)

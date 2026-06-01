@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 跌倒检测系统后端服务
@@ -729,13 +729,25 @@ def get_history_detail(record_id):
 
 @app.route('/api/statistics', methods=['GET'])
 def get_statistics():
-    """获取统计数据"""
+    """获取统计数据（按用户ID过滤）"""
+    user_info = get_current_user_info()
+    user_id = user_info.get('id', 1)
+    
+    # 管理员查看所有数据，普通用户只查看自己的数据
+    if user_info.get('username') == 'admin':
+        total_records = DetectionRecord.query.count()
+        fall_records = DetectionRecord.query.filter_by(fall_detected=True).count()
+        normal_records = DetectionRecord.query.filter_by(fall_detected=False).count()
+        total_alerts = Alert.query.count()
+        pending_alerts = Alert.query.filter_by(acknowledged=False).count()
+    else:
+        total_records = DetectionRecord.query.filter_by(user_id=user_id).count()
+        fall_records = DetectionRecord.query.filter_by(user_id=user_id, fall_detected=True).count()
+        normal_records = DetectionRecord.query.filter_by(user_id=user_id, fall_detected=False).count()
+        total_alerts = Alert.query.filter_by(user_id=user_id).count()
+        pending_alerts = Alert.query.filter_by(user_id=user_id, acknowledged=False).count()
+    
     total_users = User.query.count()
-    total_records = DetectionRecord.query.count()
-    fall_records = DetectionRecord.query.filter_by(fall_detected=True).count()
-    normal_records = DetectionRecord.query.filter_by(fall_detected=False).count()
-    pending_alerts = Alert.query.filter_by(acknowledged=False).count()
-    total_alerts = Alert.query.count()
     
     return jsonify({
         'success': True,
@@ -751,11 +763,19 @@ def get_statistics():
 
 @app.route('/api/analysis/records', methods=['GET'])
 def get_analysis_records():
-    """获取分析记录（分页）"""
+    """获取分析记录（分页，按用户ID过滤）"""
+    user_info = get_current_user_info()
+    user_id = user_info.get('id', 1)
+    
     page = int(request.args.get('page', 1))
     per_page = int(request.args.get('per_page', 10))
     
-    query = DetectionRecord.query.order_by(DetectionRecord.created_at.desc())
+    # 管理员查看所有数据，普通用户只查看自己的数据
+    if user_info.get('username') == 'admin':
+        query = DetectionRecord.query.order_by(DetectionRecord.created_at.desc())
+    else:
+        query = DetectionRecord.query.filter_by(user_id=user_id).order_by(DetectionRecord.created_at.desc())
+    
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
     
     records = []
@@ -1158,24 +1178,32 @@ def clear_alerts():
         }), 500
 
 
-# 用户认证API
+# 用户认证 API
 def get_current_user_info():
-    """获取当前用户信息（从session或请求中）"""
-    # 尝试从请求头获取用户ID
+    """获取当前用户信息（从 session 或请求中）"""
+    # 尝试从请求头获取用户 ID
     user_id = request.headers.get('X-User-Id')
     if user_id:
-        user = User.query.get(int(user_id))
-        if user:
-            return {'id': user.id, 'username': user.username, 'email': user.email}
+        try:
+            user = User.query.get(int(user_id))
+            if user:
+                return {'id': user.id, 'username': user.username, 'email': user.email}
+        except (ValueError, TypeError):
+            pass
     
-    # 默认返回admin用户（用于测试）
-    return {'id': 1, 'username': 'admin', 'email': 'admin@example.com'}
+    # 如果没有有效的用户 ID，返回 None
+    return None
 
 
 @app.route('/api/auth/current', methods=['GET'])
 def get_current_user():
     """获取当前用户信息（模拟登录状态）"""
     user_info = get_current_user_info()
+    if not user_info:
+        return jsonify({
+            'success': False,
+            'error': '用户未登录'
+        }), 401
     return jsonify({
         'success': True,
         'user': user_info

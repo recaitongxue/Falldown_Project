@@ -121,9 +121,17 @@ const goToHistory = () => {
   window.location.href = '/user/history'
 }
 
+const userInfo = ref(sessionStorage.getItem('user') ? JSON.parse(sessionStorage.getItem('user')) : null)
+const userId = ref(userInfo.value?.id || 1)
+
 const fetchStats = async () => {
   try {
-    const resp = await fetch('/api/statistics', { credentials: 'include' })
+    const resp = await fetch('/api/statistics', { 
+      credentials: 'include',
+      headers: {
+        'X-User-Id': userId.value
+      }
+    })
     const data = await resp.json()
     stats.value = {
       totalAnalyses: data.total_analyses || 0,
@@ -138,7 +146,12 @@ const fetchStats = async () => {
 
 const fetchRecentRecords = async () => {
   try {
-    const resp = await fetch('/api/analysis/records?per_page=5', { credentials: 'include' })
+    const resp = await fetch('/api/analysis/records?per_page=5', { 
+      credentials: 'include',
+      headers: {
+        'X-User-Id': userId.value
+      }
+    })
     const data = await resp.json()
     recentRecords.value = data.records || []
   } catch (e) {

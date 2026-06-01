@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <div class="login-box">
-      <h1 class="login-title">跌倒检测系统</h1>
+      <h1 class="login-title">居家老人行为监测与跌倒智能预警系统</h1>
       <p class="login-subtitle">Fall Detection System</p>
       
       <!-- 切换标签 -->
@@ -106,9 +106,6 @@
         </el-form-item>
       </el-form>
 
-      <div class="login-tips" v-if="isLoginMode">
-        <p>默认账号: admin / admin123</p>
-      </div>
     </div>
 
     <div class="system-info">

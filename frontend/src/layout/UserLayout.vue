@@ -2,7 +2,7 @@
   <div class="layout-container">
     <aside class="sidebar">
       <div class="logo">
-        <h2>跌倒检测系统</h2>
+        <h2>居家老人行为监测与跌倒智能预警系统</h2>
         <p class="subtitle">Fall Detection</p>
       </div>
       

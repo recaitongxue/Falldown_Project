@@ -74,7 +74,7 @@
       <button 
         class="page-btn" 
         :disabled="currentPage === 1"
-        @click="currentPage--"
+        @click="changePage(-1)"
       >
         上一页
       </button>
@@ -82,7 +82,7 @@
       <button 
         class="page-btn" 
         :disabled="currentPage === totalPages"
-        @click="currentPage++"
+        @click="changePage(1)"
       >
         下一页
       </button>
@@ -146,14 +146,30 @@ const formatDate = (dateStr) => {
   return date.toLocaleString('zh-CN')
 }
 
+const userInfo = ref(sessionStorage.getItem('user') ? JSON.parse(sessionStorage.getItem('user')) : null)
+const userId = ref(userInfo.value?.id || 1)
+
 const loadRecords = async () => {
   try {
-    const resp = await fetch(`/api/analysis/records?page=${currentPage.value}&per_page=${perPage.value}`, { credentials: 'include' })
+    const resp = await fetch(`/api/analysis/records?page=${currentPage.value}&per_page=${perPage.value}`, { 
+      credentials: 'include',
+      headers: {
+        'X-User-Id': userId.value
+      }
+    })
     const data = await resp.json()
     records.value = data.records || []
     totalRecords.value = data.total || 0
   } catch (e) {
     console.error('获取记录失败', e)
+  }
+}
+
+const changePage = (delta) => {
+  const newPage = currentPage.value + delta
+  if (newPage >= 1 && newPage <= totalPages.value) {
+    currentPage.value = newPage
+    loadRecords()
   }
 }
 

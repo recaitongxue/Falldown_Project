@@ -127,6 +127,7 @@ const userInfo = ref(sessionStorage.getItem('user') ? JSON.parse(sessionStorage.
 const userId = ref(userInfo.value?.id || 1)
 const selectedFile = ref(null)
 const isDragging = ref(false)
+const isAnalyzing = ref(false)
 const analysisProgress = ref(0)
 const analysisInfo = ref('')
 const analysisResults = ref(null)
