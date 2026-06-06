@@ -98,6 +98,9 @@
             {{ record.label }}
           </div>
           <div class="history-confidence">置信度: {{ record.confidence }}%</div>
+          <button v-if="record.label === '跌倒'" class="history-screenshot-btn" @click="viewScreenshot(record)">
+            📷 查看截图
+          </button>
         </div>
         <div v-if="detectionHistory.length === 0" class="no-history">
           暂无检测记录
@@ -112,12 +115,23 @@
         <el-button type="primary" @click="downloadImage">下载截图</el-button>
       </template>
     </el-dialog>
+
+    <el-dialog v-model="showHistoryScreenshot" title="跌倒截图" width="800px">
+      <img :src="historyScreenshotUrl" class="capture-image" />
+      <template #footer>
+        <el-button @click="showHistoryScreenshot = false">关闭</el-button>
+        <el-button type="primary" @click="downloadHistoryScreenshot">下载截图</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'
+
+const userInfo = ref(sessionStorage.getItem('user') ? JSON.parse(sessionStorage.getItem('user')) : null)
+const userId = ref(userInfo.value?.id || 1)
 
 const videoElement = ref(null)
 const canvasElement = ref(null)
@@ -137,6 +151,8 @@ const detectionResult = ref(null)
 const detectionHistory = ref([])
 const showCaptureDialog = ref(false)
 const capturedImage = ref('')
+const showHistoryScreenshot = ref(false)
+const historyScreenshotUrl = ref('')
 let mediaRecorder = null
 let recordedChunks = []
 let frameCount = 0
@@ -161,7 +177,20 @@ const skeletonConnections = [
 
 onMounted(async () => {
   await loadAvailableCameras()
+  await loadDetectionHistory()
 })
+
+async function loadDetectionHistory() {
+  try {
+    const resp = await fetch(`/api/detection-history?user_id=${userId.value}&limit=20`)
+    const data = await resp.json()
+    if (data.success && data.data) {
+      detectionHistory.value = data.data
+    }
+  } catch (err) {
+    console.error('加载检测历史失败:', err)
+  }
+}
 
 onUnmounted(() => {
   stopCamera()
@@ -350,6 +379,85 @@ function downloadImage() {
   document.body.removeChild(link)
 }
 
+async function saveFallScreenshot(detectionResult) {
+  if (!videoElement.value) {
+    console.warn('无法截图：视频元素不存在')
+    return
+  }
+  
+  try {
+    // 创建canvas并绘制当前帧
+    const canvas = document.createElement('canvas')
+    canvas.width = videoElement.value.videoWidth || 640
+    canvas.height = videoElement.value.videoHeight || 480
+    const ctx = canvas.getContext('2d')
+    ctx.drawImage(videoElement.value, 0, 0, canvas.width, canvas.height)
+    
+    // 添加检测信息到截图上
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)'
+    ctx.fillRect(10, 10, 300, 80)
+    
+    ctx.fillStyle = '#ff0000'
+    ctx.font = 'bold 16px Arial'
+    ctx.fillText(`检测结果: ${detectionResult.label}`, 20, 35)
+    
+    ctx.fillStyle = '#ffff00'
+    ctx.font = '14px Arial'
+    ctx.fillText(`置信度: ${detectionResult.confidence}%`, 20, 55)
+    ctx.fillText(`时间: ${new Date().toLocaleString()}`, 20, 75)
+    
+    // 转换为base64
+    const imageData = canvas.toDataURL('image/png')
+    
+    // 发送到后端保存
+    const response = await fetch('/api/save-fall-screenshot', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-User-Id': userId.value
+      },
+      body: JSON.stringify({
+        image: imageData,
+        label: detectionResult.label,
+        confidence: detectionResult.confidence,
+        behavior: detectionResult.behavior_cn,
+        timestamp: new Date().toISOString()
+      })
+    })
+    
+    const result = await response.json()
+    if (result.success) {
+      console.log('跌倒截图已保存:', result.file_path)
+      // 保存截图URL到历史记录 - 兼容Windows和Unix路径
+      const filename = result.file_path.split(/[\\/]/).pop()
+      const screenshotUrl = `/api/download/screenshot/${encodeURIComponent(filename)}`
+      detectionHistory.value[0].screenshot = screenshotUrl
+    } else {
+      console.error('保存截图失败:', result.error)
+    }
+  } catch (err) {
+    console.error('保存跌倒截图异常:', err)
+  }
+}
+
+function viewScreenshot(record) {
+  if (record.screenshot) {
+    historyScreenshotUrl.value = record.screenshot
+    showHistoryScreenshot.value = true
+  } else {
+    ElMessage.warning('暂无截图可用')
+  }
+}
+
+function downloadHistoryScreenshot() {
+  const link = document.createElement('a')
+  link.href = historyScreenshotUrl.value
+  link.download = `fall_screenshot_${Date.now()}.png`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
+
 function toggleDetection() {
   if (isDetecting.value) {
     stopDetection()
@@ -418,18 +526,22 @@ async function simulateDetection() {
       drawSkeleton(result.joints || {}, result.alert || result.fall_detected)
       
       if (result.fall_detected || result.alert) {
+        // 自动截图保存跌倒时刻
+        await saveFallScreenshot(result)
+        
         detectionHistory.value.unshift({
           time: new Date().toLocaleString(),
           label: result.label,
           confidence: Math.round(result.confidence * 100),
-          behavior: result.behavior_cn || '未知'
+          behavior: result.behavior_cn || '未知',
+          screenshot: null  // 将在保存后更新
         })
         
         if (detectionHistory.value.length > 10) {
           detectionHistory.value.pop()
         }
         
-        ElMessage.warning('⚠️ 检测到跌倒行为！')
+        ElMessage.warning('⚠️ 检测到跌倒行为！已自动保存截图')
       }
     }
   } catch (err) {

@@ -15,6 +15,9 @@ back/output/
 *.avi
 *.mov
 *.mkv
+*.png
+
+
 
 # Python
 __pycache__/
