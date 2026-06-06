@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+﻿#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 跌倒检测系统后端服务
@@ -179,11 +179,16 @@ class DetectionRecord(db.Model):
     filename = db.Column(db.String(255))
     file_path = db.Column(db.String(500))
     output_path = db.Column(db.String(500))
+    screenshot_path = db.Column(db.String(500))
     total_frames = db.Column(db.Integer)
     detected_frames = db.Column(db.Integer)
     fall_detected = db.Column(db.Boolean)
     alert_count = db.Column(db.Integer)
     status = db.Column(db.String(20), default='pending')
+    label = db.Column(db.String(50))
+    confidence = db.Column(db.Float)
+    behavior = db.Column(db.String(50))
+    detected_at = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, default=datetime.datetime.now)
     completed_at = db.Column(db.DateTime)
     
@@ -198,10 +203,15 @@ class DetectionRecord(db.Model):
             'filename': self.filename,
             'file_path': self.file_path,
             'output_path': self.output_path,
+            'screenshot_path': self.screenshot_path,
             'total_frames': self.total_frames,
             'detected_frames': self.detected_frames,
             'fall_detected': self.fall_detected,
             'alert_count': self.alert_count,
+            'label': self.label,
+            'confidence': self.confidence,
+            'behavior': self.behavior,
+            'detected_at': self.detected_at.isoformat() if self.detected_at else None,
             'status': self.status,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'completed_at': self.completed_at.isoformat() if self.completed_at else None
@@ -568,6 +578,7 @@ def detect_image():
             'behavior_cn': result['behavior_cn'],
             'behavior_confidence': result.get('behavior_confidence', 0.0),
             'is_fall': result.get('is_fall', False),
+            'fall_detected': result.get('is_fall', False) or result.get('alert', False),
             'M1': result.get('M1', False),
             'M2': result.get('M2', False),
             'M3': result.get('M3', False),
@@ -597,10 +608,138 @@ def detect_image():
         }), 500
 
 
+@app.route('/api/save-fall-screenshot', methods=['POST'])
+def save_fall_screenshot():
+    """保存跌倒检测截图"""
+    data = request.get_json()
+    image_data = data.get('image')
+    label = data.get('label', 'fall')
+    confidence = data.get('confidence', 0.0)
+    behavior = data.get('behavior', '未知')
+    timestamp = data.get('timestamp', '')
+    
+    # 从请求头获取用户ID
+    user_id = request.headers.get('X-User-Id')
+    if user_id:
+        try:
+            user_id = int(user_id)
+        except (ValueError, TypeError):
+            user_id = 1
+    else:
+        user_id = 1
+    
+    if not image_data:
+        return jsonify({'success': False, 'error': '未提供图像数据'}), 400
+    
+    try:
+        # 解析base64图像数据
+        if image_data.startswith('data:image/png;base64,'):
+            image_data = image_data.replace('data:image/png;base64,', '')
+        elif image_data.startswith('data:image/jpeg;base64,'):
+            image_data = image_data.replace('data:image/jpeg;base64,', '')
+        
+        # 解码base64
+        import base64
+        image_bytes = base64.b64decode(image_data)
+        
+        # 创建截图保存目录
+        screenshot_dir = os.path.join(app.config['OUTPUT_FOLDER'], 'fall_screenshots')
+        os.makedirs(screenshot_dir, exist_ok=True)
+        
+        # 生成文件名 - 使用更清晰的时间戳格式
+        if timestamp:
+            # 解析ISO格式时间戳，提取日期和时间部分
+            import re
+            match = re.match(r'(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})(\.\d+)?Z?', timestamp)
+            if match:
+                date_part = match.group(1)
+                time_part = match.group(2).replace(':', '-')
+                timestamp_str = f"{date_part}_{time_part}"
+            else:
+                timestamp_str = timestamp.replace(':', '-').replace('T', '_').split('.')[0]
+        else:
+            timestamp_str = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        filename = f"fall_{timestamp_str}.png"
+        filepath = os.path.join(screenshot_dir, filename)
+        
+        # 保存文件
+        with open(filepath, 'wb') as f:
+            f.write(image_bytes)
+        
+        # 记录到数据库
+        new_record = DetectionRecord(
+            user_id=user_id,
+            file_path='',
+            screenshot_path=filepath,
+            label=label,
+            confidence=confidence,
+            behavior=behavior,
+            detected_at=datetime.datetime.now(),
+            fall_detected=True
+        )
+        db.session.add(new_record)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': '截图保存成功',
+            'file_path': filepath,
+            'record_id': new_record.id
+        }), 200
+        
+    except Exception as e:
+        import traceback
+        print(f"保存截图失败: {e}")
+        print(traceback.format_exc())
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
 @app.route('/api/download/video/<filename>', methods=['GET'])
 def download_video(filename):
     """下载检测结果视频"""
     return send_from_directory(app.config['OUTPUT_FOLDER'], filename, as_attachment=True)
+
+
+@app.route('/api/download/screenshot/<filename>', methods=['GET'])
+def download_screenshot(filename):
+    """下载跌倒截图"""
+    screenshot_dir = os.path.join(app.config['OUTPUT_FOLDER'], 'fall_screenshots')
+    return send_from_directory(screenshot_dir, filename, as_attachment=True)
+
+
+@app.route('/api/detection-history', methods=['GET'])
+def get_detection_history():
+    """获取用户的跌倒检测历史记录（实时监控检测到的记录）"""
+    user_id = request.args.get('user_id', 1, type=int)
+    limit = request.args.get('limit', 20, type=int)
+    
+    # 查询该用户的跌倒检测记录，按检测时间倒序排列
+    records = DetectionRecord.query.filter(
+        DetectionRecord.user_id == user_id,
+        DetectionRecord.screenshot_path.isnot(None)
+    ).order_by(DetectionRecord.detected_at.desc()).limit(limit).all()
+    
+    result = []
+    for record in records:
+        # 提取截图文件名用于生成下载URL
+        screenshot_filename = os.path.basename(record.screenshot_path) if record.screenshot_path else None
+        
+        result.append({
+            'id': record.id,
+            'time': record.detected_at.strftime('%Y/%m/%d %H:%M:%S') if record.detected_at else '',
+            'label': record.label or '跌倒',
+            'confidence': int(record.confidence) if record.confidence else 0,
+            'behavior': record.behavior or '未知',
+            'screenshot': f'/api/download/screenshot/{screenshot_filename}' if screenshot_filename else None
+        })
+    
+    return jsonify({
+        'success': True,
+        'data': result
+    }), 200
 
 
 @app.route('/api/video/stream/<path:filename>', methods=['GET'])
@@ -2109,9 +2248,68 @@ def admin_ai_analyze():
         }), 500
 
 
+def migrate_database():
+    """数据库迁移：添加缺失的字段"""
+    with app.app_context():
+        try:
+            # 使用SQLAlchemy执行原始SQL来添加字段
+            from sqlalchemy import text
+            
+            # 添加 screenshot_path 字段
+            try:
+                db.session.execute(text("ALTER TABLE detection_record ADD COLUMN IF NOT EXISTS screenshot_path VARCHAR(500) NULL"))
+                db.session.commit()
+                print("已添加 screenshot_path 字段")
+            except Exception as e:
+                print(f"screenshot_path 字段可能已存在: {e}")
+                db.session.rollback()
+            
+            # 添加 label 字段
+            try:
+                db.session.execute(text("ALTER TABLE detection_record ADD COLUMN IF NOT EXISTS label VARCHAR(50) NULL"))
+                db.session.commit()
+                print("已添加 label 字段")
+            except Exception as e:
+                print(f"label 字段可能已存在: {e}")
+                db.session.rollback()
+            
+            # 添加 confidence 字段
+            try:
+                db.session.execute(text("ALTER TABLE detection_record ADD COLUMN IF NOT EXISTS confidence FLOAT NULL"))
+                db.session.commit()
+                print("已添加 confidence 字段")
+            except Exception as e:
+                print(f"confidence 字段可能已存在: {e}")
+                db.session.rollback()
+            
+            # 添加 behavior 字段
+            try:
+                db.session.execute(text("ALTER TABLE detection_record ADD COLUMN IF NOT EXISTS behavior VARCHAR(50) NULL"))
+                db.session.commit()
+                print("已添加 behavior 字段")
+            except Exception as e:
+                print(f"behavior 字段可能已存在: {e}")
+                db.session.rollback()
+            
+            # 添加 detected_at 字段
+            try:
+                db.session.execute(text("ALTER TABLE detection_record ADD COLUMN IF NOT EXISTS detected_at DATETIME NULL"))
+                db.session.commit()
+                print("已添加 detected_at 字段")
+            except Exception as e:
+                print(f"detected_at 字段可能已存在: {e}")
+                db.session.rollback()
+                
+            print("数据库迁移完成")
+            
+        except Exception as e:
+            print(f"数据库迁移失败: {e}")
+
+
 if __name__ == '__main__':
-    # 创建数据库表
+    # 创建数据库表（如果不存在）
     with app.app_context():
         db.create_all()
+        migrate_database()
     
     app.run(host='0.0.0.0', port=5000, debug=False)
