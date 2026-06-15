@@ -21,45 +21,51 @@
 ## 实体关系图 (ERD)
 
 ```
-┌─────────────┐       1:N       ┌─────────────┐       1:N       ┌─────────────────┐
-│    User     │ ──────────────→ │   Camera    │ ──────────────→ │DetectionRecord  │
-│             │                 │             │                 │                 │
-│ • id        │                 │ • id        │                 │ • id            │
-│ • username  │                 │ • name      │                 │ • user_id       │
-│ • email     │                 │ • location  │                 │ • camera_id     │
-│ • role      │                 │ • user_id   │                 │ • filename      │
-│ • password  │                 │ • url       │                 │ • fall_detected │
-└─────────────┘                 └─────────────┘                 └────────┬────────┘
-        │                                                                 │
-        │ 1:N                                                            │ 1:N
-        ↓                                                                ↓
-┌─────────────┐                                                  ┌─────────────┐
-│   Alert     │                                                  │AlertRecord │
-│             │                                                  │             │
-│ • id        │                                                  │ • id        │
-│ • user_id   │                                                  │ • detection_id│
-│ • severity  │                                                  │ • behavior  │
-│ • message   │                                                  │ • M1/M2/M3  │
-└─────────────┘                                                  └─────────────┘
+┌─────────────┐       1:N       ┌─────────────┐       1:N       ┌─────────────────────┐
+│    User     │ ──────────────→ │   Camera    │ ──────────────→ │  DetectionRecord    │
+│             │                 │             │                 │                     │
+│ • id        │                 │ • id        │                 │ • id                │
+│ • username  │                 │ • name      │                 │ • user_id          │
+│ • email     │                 │ • location  │                 │ • camera_id        │
+│ • role      │                 │ • url       │                 │ • filename         │
+│ • password  │                 │ • user_id   │                 │ • file_path        │
+│ • phone     │                 │ • status    │                 │ • screenshot_path  │
+└─────────────┘                 └─────────────┘                 └──────────┬──────────┘
+        │                                                                   │
+        │ 1:N                                                              │ 1:N
+        ↓                                                                  ↓
+┌─────────────┐                                                    ┌─────────────┐
+│ AlertRecord │                                                    │    Alert    │
+│             │                                                    │             │
+│ • id        │                                                    │ • id        │
+│ • detection_id│                                                  │ • record_id │
+│ • user_id   │                                                    │ • user_id   │
+│ • M1/M2/M3  │                                                    │ • severity  │
+│ • behavior  │                                                    │ • message   │
+└─────────────┘                                                    └─────────────┘
         │
         │ 1:N
         ↓
+┌─────────────────────┐       1:N       ┌─────────────────────┐
+│ConversationSession │ ──────────────→ │ ConversationHistory │
+│                     │                 │                     │
+│ • id               │                 │ • id                │
+│ • user_id          │                 │ • session_id        │
+│ • title            │                 │ • role              │
+└─────────────────────┘                 │ • content          │
+                                         └─────────────────────┘
+
+        1:N
+        ↓
 ┌─────────────────────┐
-│ConversationSession │
+│  AnalysisRecord    │
 │                     │
 │ • id                │
 │ • user_id           │
-│ • title             │
-└──────────┬──────────┘
-           │ 1:N
-           ↓
-┌─────────────────────┐
-│ConversationHistory  │
-│                     │
-│ • id                │
-│ • session_id        │
-│ • role              │
-│ • content           │
+│ • input_path        │
+│ • output_path       │
+│ • status            │
+│ • fall_detected     │
 └─────────────────────┘
 ```
 
@@ -67,7 +73,9 @@
 
 ## 表结构详细设计
 
-### 1. users 表 - 用户信息
+### 1. user 表 - 用户信息
+
+**对应模型**: `User` (app.py:119)
 
 | 字段名 | 类型 | 约束 | 默认值 | 说明 |
 |-------|------|-----|-------|------|
@@ -81,14 +89,16 @@
 | **last_login** | DATETIME | - | NULL | 最后登录时间 |
 | **is_active** | BOOLEAN | - | TRUE | 是否活跃 |
 
-**索引**：
+**索引**:
 - `idx_users_username` (username)
 - `idx_users_email` (email)
 - `idx_users_role` (role)
 
 ---
 
-### 2. cameras 表 - 摄像头信息
+### 2. camera 表 - 摄像头信息
+
+**对应模型**: `Camera` (app.py:143)
 
 | 字段名 | 类型 | 约束 | 默认值 | 说明 |
 |-------|------|-----|-------|------|
@@ -105,38 +115,47 @@
 | **resolution** | VARCHAR(20) | - | NULL | 分辨率 |
 | **fps** | INTEGER | - | NULL | 帧率 |
 
-**索引**：
+**索引**:
 - `idx_cameras_user_id` (user_id)
 - `idx_cameras_status` (status)
 
 ---
 
-### 3. detection_records 表 - 检测记录
+### 3. detection_record 表 - 检测记录
+
+**对应模型**: `DetectionRecord` (app.py:175)
 
 | 字段名 | 类型 | 约束 | 默认值 | 说明 |
 |-------|------|-----|-------|------|
 | **id** | INTEGER | PRIMARY KEY, AUTO_INCREMENT | - | 记录ID |
 | **user_id** | INTEGER | FOREIGN KEY | - | 用户ID |
-| **camera_id** | INTEGER | FOREIGN KEY | NULL | 摄像头ID（可为空） |
+| **camera_id** | INTEGER | FOREIGN KEY | NULL | 摄像头ID |
 | **filename** | VARCHAR(255) | - | - | 原始文件名 |
 | **file_path** | VARCHAR(500) | - | - | 原始文件路径 |
 | **output_path** | VARCHAR(500) | - | NULL | 输出文件路径 |
+| **screenshot_path** | VARCHAR(500) | - | NULL | 跌倒截图路径 |
 | **total_frames** | INTEGER | - | NULL | 总帧数 |
 | **detected_frames** | INTEGER | - | NULL | 检测到事件的帧数 |
 | **fall_detected** | BOOLEAN | - | NULL | 是否检测到跌倒 |
 | **alert_count** | INTEGER | - | NULL | 告警数量 |
 | **status** | VARCHAR(20) | - | 'pending' | 状态：pending/processing/completed/failed |
+| **label** | VARCHAR(50) | - | NULL | 检测标签 |
+| **confidence** | FLOAT | - | NULL | 置信度 |
+| **behavior** | VARCHAR(50) | - | NULL | 行为类型 |
+| **detected_at** | DATETIME | - | NULL | 检测时间 |
 | **created_at** | DATETIME | - | CURRENT_TIMESTAMP | 创建时间 |
 | **completed_at** | DATETIME | - | NULL | 完成时间 |
 
-**索引**：
+**索引**:
 - `idx_detection_user_id` (user_id)
 - `idx_detection_status` (status)
 - `idx_detection_created_at` (created_at)
 
 ---
 
-### 4. alert_records 表 - 告警详情记录
+### 4. alert_record 表 - 告警详情记录
+
+**对应模型**: `AlertRecord` (app.py:221)
 
 | 字段名 | 类型 | 约束 | 默认值 | 说明 |
 |-------|------|-----|-------|------|
@@ -157,14 +176,16 @@
 | **acknowledged_at** | DATETIME | - | NULL | 确认时间 |
 | **created_at** | DATETIME | - | CURRENT_TIMESTAMP | 创建时间 |
 
-**索引**：
+**索引**:
 - `idx_alertrecord_detection_id` (detection_id)
 - `idx_alertrecord_user_id` (user_id)
 - `idx_alertrecord_acknowledged` (acknowledged)
 
 ---
 
-### 5. alerts 表 - 告警通知
+### 5. alert 表 - 告警通知
+
+**对应模型**: `Alert` (app.py:263)
 
 | 字段名 | 类型 | 约束 | 默认值 | 说明 |
 |-------|------|-----|-------|------|
@@ -172,11 +193,11 @@
 | **record_id** | INTEGER | FOREIGN KEY | - | 检测记录ID |
 | **user_id** | INTEGER | FOREIGN KEY | - | 目标用户ID |
 | **alert_type** | VARCHAR(50) | - | - | 告警类型 |
-| **severity** | VARCHAR(20) | - | 'medium' | 严重程度：low/medium/high |
+| **severity** | VARCHAR(20) | - | NULL | 严重程度：low/medium/high |
 | **message** | TEXT | - | - | 告警消息 |
-| **title** | VARCHAR(100) | - | '跌倒检测告警' | 告警标题 |
-| **detection_type** | VARCHAR(50) | - | 'fall' | 检测类型 |
-| **confidence** | FLOAT | - | 0.0 | 置信度 |
+| **title** | VARCHAR(100) | - | NULL | 告警标题 |
+| **detection_type** | VARCHAR(50) | - | NULL | 检测类型 |
+| **confidence** | FLOAT | - | NULL | 置信度 |
 | **sent_to** | VARCHAR(200) | - | NULL | 发送目标 |
 | **sent_at** | DATETIME | - | CURRENT_TIMESTAMP | 发送时间 |
 | **acknowledged** | BOOLEAN | - | FALSE | 是否已确认 |
@@ -184,24 +205,16 @@
 | **acknowledged_at** | DATETIME | - | NULL | 确认时间 |
 | **response_action** | TEXT | - | NULL | 响应动作 |
 
-**索引**：
+**索引**:
 - `idx_alerts_user_id` (user_id)
 - `idx_alerts_severity` (severity)
 - `idx_alerts_acknowledged` (acknowledged)
 
 ---
 
-### 6. system_config 表 - 系统配置
+### 6. conversation_session 表 - 对话会话
 
-| 字段名 | 类型 | 约束 | 默认值 | 说明 |
-|-------|------|-----|-------|------|
-| **id** | INTEGER | PRIMARY KEY, AUTO_INCREMENT | - | 配置ID |
-| **key** | VARCHAR(100) | UNIQUE | - | 配置键名 |
-| **value** | TEXT | - | - | 配置值 |
-
----
-
-### 7. conversation_sessions 表 - 对话会话
+**对应模型**: `ConversationSession` (app.py:315)
 
 | 字段名 | 类型 | 约束 | 默认值 | 说明 |
 |-------|------|-----|-------|------|
@@ -211,12 +224,14 @@
 | **created_at** | DATETIME | - | CURRENT_TIMESTAMP | 创建时间 |
 | **updated_at** | DATETIME | - | CURRENT_TIMESTAMP | 更新时间 |
 
-**索引**：
+**索引**:
 - `idx_conversation_user_id` (user_id)
 
 ---
 
-### 8. conversation_history 表 - 对话历史
+### 7. conversation_history 表 - 对话历史
+
+**对应模型**: `ConversationHistory` (app.py:333)
 
 | 字段名 | 类型 | 约束 | 默认值 | 说明 |
 |-------|------|-----|-------|------|
@@ -227,13 +242,15 @@
 | **content** | TEXT | NOT NULL | - | 消息内容 |
 | **timestamp** | DATETIME | - | CURRENT_TIMESTAMP | 时间戳 |
 
-**索引**：
+**索引**:
 - `idx_history_session_id` (session_id)
 - `idx_history_user_id` (user_id)
 
 ---
 
-### 9. analysis_records 表 - 分析记录
+### 8. analysis_record 表 - 分析记录
+
+**对应模型**: `AnalysisRecord` (app.py:353)
 
 | 字段名 | 类型 | 约束 | 默认值 | 说明 |
 |-------|------|-----|-------|------|
@@ -253,7 +270,7 @@
 | **created_at** | DATETIME | - | CURRENT_TIMESTAMP | 创建时间 |
 | **completed_at** | DATETIME | - | NULL | 完成时间 |
 
-**索引**：
+**索引**:
 - `idx_analysis_user_id` (user_id)
 - `idx_analysis_status` (status)
 
@@ -262,10 +279,12 @@
 ## 数据库关系总结
 
 | 关系 | 类型 | 说明 |
-|-----|------|-----|
+|-----|------|------|
 | User → Camera | 1:N | 一个用户可拥有多个摄像头 |
 | User → DetectionRecord | 1:N | 一个用户可拥有多个检测记录 |
-| User → Alert | 1:N | 一个用户可拥有多个告警 |
+| User → AlertRecord | 1:N | 一个用户可拥有多个告警详情记录 |
+| User → Alert | 1:N | 一个用户可拥有多个告警通知 |
+| User → AnalysisRecord | 1:N | 一个用户可拥有多个分析记录 |
 | Camera → DetectionRecord | 1:N | 一个摄像头可有多个检测记录 |
 | DetectionRecord → AlertRecord | 1:N | 一个检测记录可有多个告警详情 |
 | DetectionRecord → Alert | 1:N | 一个检测记录可触发多个告警通知 |
@@ -277,15 +296,15 @@
 
 ```sql
 -- 创建数据库
-CREATE DATABASE IF NOT EXISTS falldown_db 
-  CHARACTER SET utf8mb4 
+CREATE DATABASE IF NOT EXISTS falldown_db
+  CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
 -- 使用数据库
 USE falldown_db;
 
 -- 创建用户表
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE IF NOT EXISTS user (
   id INT AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(80) NOT NULL UNIQUE,
   email VARCHAR(120) NOT NULL UNIQUE,
@@ -301,7 +320,7 @@ CREATE TABLE IF NOT EXISTS users (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 创建摄像头表
-CREATE TABLE IF NOT EXISTS cameras (
+CREATE TABLE IF NOT EXISTS camera (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   location VARCHAR(200),
@@ -316,33 +335,38 @@ CREATE TABLE IF NOT EXISTS cameras (
   fps INT,
   INDEX idx_cameras_user_id (user_id),
   INDEX idx_cameras_status (status),
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 创建检测记录表
-CREATE TABLE IF NOT EXISTS detection_records (
+CREATE TABLE IF NOT EXISTS detection_record (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT,
   camera_id INT,
   filename VARCHAR(255),
   file_path VARCHAR(500),
   output_path VARCHAR(500),
+  screenshot_path VARCHAR(500),
   total_frames INT,
   detected_frames INT,
   fall_detected BOOLEAN,
   alert_count INT,
   status VARCHAR(20) DEFAULT 'pending',
+  label VARCHAR(50),
+  confidence FLOAT,
+  behavior VARCHAR(50),
+  detected_at DATETIME,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   completed_at DATETIME,
   INDEX idx_detection_user_id (user_id),
   INDEX idx_detection_status (status),
   INDEX idx_detection_created_at (created_at),
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY (camera_id) REFERENCES cameras(id) ON DELETE SET NULL
+  FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
+  FOREIGN KEY (camera_id) REFERENCES camera(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 创建告警详情表
-CREATE TABLE IF NOT EXISTS alert_records (
+CREATE TABLE IF NOT EXISTS alert_record (
   id INT AUTO_INCREMENT PRIMARY KEY,
   detection_id INT,
   user_id INT,
@@ -362,21 +386,21 @@ CREATE TABLE IF NOT EXISTS alert_records (
   INDEX idx_alertrecord_detection_id (detection_id),
   INDEX idx_alertrecord_user_id (user_id),
   INDEX idx_alertrecord_acknowledged (acknowledged),
-  FOREIGN KEY (detection_id) REFERENCES detection_records(id) ON DELETE CASCADE,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  FOREIGN KEY (detection_id) REFERENCES detection_record(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 创建告警通知表
-CREATE TABLE IF NOT EXISTS alerts (
+CREATE TABLE IF NOT EXISTS alert (
   id INT AUTO_INCREMENT PRIMARY KEY,
   record_id INT,
   user_id INT,
   alert_type VARCHAR(50),
-  severity VARCHAR(20) DEFAULT 'medium',
+  severity VARCHAR(20),
   message TEXT,
-  title VARCHAR(100) DEFAULT '跌倒检测告警',
-  detection_type VARCHAR(50) DEFAULT 'fall',
-  confidence FLOAT DEFAULT 0.0,
+  title VARCHAR(100),
+  detection_type VARCHAR(50),
+  confidence FLOAT,
   sent_to VARCHAR(200),
   sent_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   acknowledged BOOLEAN DEFAULT FALSE,
@@ -386,20 +410,13 @@ CREATE TABLE IF NOT EXISTS alerts (
   INDEX idx_alerts_user_id (user_id),
   INDEX idx_alerts_severity (severity),
   INDEX idx_alerts_acknowledged (acknowledged),
-  FOREIGN KEY (record_id) REFERENCES detection_records(id) ON DELETE CASCADE,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY (acknowledged_by) REFERENCES users(id) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- 创建系统配置表
-CREATE TABLE IF NOT EXISTS system_config (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  key VARCHAR(100) UNIQUE,
-  value TEXT
+  FOREIGN KEY (record_id) REFERENCES detection_record(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
+  FOREIGN KEY (acknowledged_by) REFERENCES user(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 创建对话会话表
-CREATE TABLE IF NOT EXISTS conversation_sessions (
+CREATE TABLE IF NOT EXISTS conversation_session (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id VARCHAR(100) NOT NULL,
   title VARCHAR(200) NOT NULL DEFAULT '新对话',
@@ -418,11 +435,11 @@ CREATE TABLE IF NOT EXISTS conversation_history (
   timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_history_session_id (session_id),
   INDEX idx_history_user_id (user_id),
-  FOREIGN KEY (session_id) REFERENCES conversation_sessions(id) ON DELETE CASCADE
+  FOREIGN KEY (session_id) REFERENCES conversation_session(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 创建分析记录表
-CREATE TABLE IF NOT EXISTS analysis_records (
+CREATE TABLE IF NOT EXISTS analysis_record (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
   original_filename VARCHAR(255) NOT NULL,
@@ -440,7 +457,7 @@ CREATE TABLE IF NOT EXISTS analysis_records (
   completed_at DATETIME,
   INDEX idx_analysis_user_id (user_id),
   INDEX idx_analysis_status (status),
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ```
 
@@ -452,13 +469,14 @@ CREATE TABLE IF NOT EXISTS analysis_records (
 
 | 字段 | 枚举值 | 说明 |
 |-----|-------|------|
-| users.role | admin, user | 用户角色 |
-| cameras.camera_type | rtsp, http, local | 摄像头类型 |
-| cameras.status | online, offline | 摄像头状态 |
-| detection_records.status | pending, processing, completed, failed | 检测状态 |
-| alerts.severity | low, medium, high | 告警严重程度 |
-| alerts.detection_type | fall, activity, unknown | 检测类型 |
+| user.role | admin, user | 用户角色 |
+| camera.camera_type | rtsp, http, local | 摄像头类型 |
+| camera.status | online, offline | 摄像头状态 |
+| detection_record.status | pending, processing, completed, failed | 检测状态 |
+| alert.severity | low, medium, high | 告警严重程度 |
+| alert.detection_type | fall, activity, unknown | 检测类型 |
 | conversation_history.role | user, assistant | 消息角色 |
+| analysis_record.status | processing, completed, failed | 分析状态 |
 
 ---
 
@@ -469,17 +487,17 @@ CREATE TABLE IF NOT EXISTS analysis_records (
 1. **用户登录查询**
    ```sql
    -- 优化前
-   SELECT * FROM users WHERE username = 'xxx' AND password_hash = 'xxx';
-   
+   SELECT * FROM user WHERE username = 'xxx' AND password_hash = 'xxx';
+
    -- 索引优化
-   CREATE INDEX idx_users_username_password ON users(username, password_hash);
+   CREATE INDEX idx_users_username_password ON user(username, password_hash);
    ```
 
 2. **按用户查询检测记录**
    ```sql
    -- 优化前
-   SELECT * FROM detection_records WHERE user_id = 1 ORDER BY created_at DESC LIMIT 20;
-   
+   SELECT * FROM detection_record WHERE user_id = 1 ORDER BY created_at DESC LIMIT 20;
+
    -- 索引优化（已在表定义中）
    -- idx_detection_user_id, idx_detection_created_at
    ```
@@ -487,8 +505,8 @@ CREATE TABLE IF NOT EXISTS analysis_records (
 3. **未确认告警查询**
    ```sql
    -- 优化前
-   SELECT * FROM alerts WHERE acknowledged = FALSE AND severity = 'high';
-   
+   SELECT * FROM alert WHERE acknowledged = FALSE AND severity = 'high';
+
    -- 索引优化（已在表定义中）
    -- idx_alerts_severity, idx_alerts_acknowledged
    ```
@@ -497,10 +515,10 @@ CREATE TABLE IF NOT EXISTS analysis_records (
 
 ```sql
 -- 联合索引：用户+创建时间（用于分页查询）
-CREATE INDEX idx_detection_user_created ON detection_records(user_id, created_at DESC);
+CREATE INDEX idx_detection_user_created ON detection_record(user_id, created_at DESC);
 
 -- 联合索引：告警严重程度+确认状态（用于告警统计）
-CREATE INDEX idx_alerts_severity_ack ON alerts(severity, acknowledged);
+CREATE INDEX idx_alerts_severity_ack ON alert(severity, acknowledged);
 
 -- 联合索引：会话+时间（用于对话历史查询）
 CREATE INDEX idx_history_session_timestamp ON conversation_history(session_id, timestamp DESC);
@@ -528,15 +546,133 @@ mysqldump -u username -p falldown_db > falldown_db_backup_$(date +%Y%m%d).sql
 mysqldump -u username -p falldown_db | gzip > falldown_db_backup_$(date +%Y%m%d).sql.gz
 
 # 备份特定表
-mysqldump -u username -p falldown_db users cameras > falldown_db_core_$(date +%Y%m%d).sql
+mysqldump -u username -p falldown_db user camera detection_record > falldown_db_core_$(date +%Y%m%d).sql
 ```
 
 ---
 
-## 安全注意事项
+## 代码中的模型定义
 
-1. **密码存储**：密码必须使用 bcrypt 或类似算法哈希存储，禁止明文存储
-2. **SQL注入**：使用 ORM 参数化查询，禁止字符串拼接
-3. **敏感数据**：email、phone 等字段需要加密存储或脱敏处理
-4. **备份加密**：数据库备份文件需要加密存储
-5. **访问控制**：数据库用户权限最小化原则
+以下是 `app.py` 中的实际模型定义（供开发参考）：
+
+```python
+# app.py:119
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(512))
+    role = db.Column(db.String(20), default='user')
+    phone = db.Column(db.String(20))
+    created_at = db.Column(db.DateTime, default=datetime.datetime.now)
+    last_login = db.Column(db.DateTime)
+    is_active = db.Column(db.Boolean, default=True)
+
+# app.py:143
+class Camera(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    location = db.Column(db.String(200))
+    camera_type = db.Column(db.String(20), default='rtsp')
+    url = db.Column(db.String(500))
+    is_active = db.Column(db.Boolean, default=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    created_at = db.Column(db.DateTime, default=datetime.datetime.now)
+    last_check = db.Column(db.DateTime)
+    status = db.Column(db.String(20), default='offline')
+    resolution = db.Column(db.String(20))
+    fps = db.Column(db.Integer)
+
+# app.py:175
+class DetectionRecord(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    camera_id = db.Column(db.Integer, db.ForeignKey('camera.id'))
+    filename = db.Column(db.String(255))
+    file_path = db.Column(db.String(500))
+    output_path = db.Column(db.String(500))
+    screenshot_path = db.Column(db.String(500))  # 跌倒截图路径
+    total_frames = db.Column(db.Integer)
+    detected_frames = db.Column(db.Integer)
+    fall_detected = db.Column(db.Boolean)
+    alert_count = db.Column(db.Integer)
+    status = db.Column(db.String(20), default='pending')
+    label = db.Column(db.String(50))
+    confidence = db.Column(db.Float)
+    behavior = db.Column(db.String(50))
+    detected_at = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime, default=datetime.datetime.now)
+    completed_at = db.Column(db.DateTime)
+
+# app.py:221
+class AlertRecord(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    detection_id = db.Column(db.Integer, db.ForeignKey('detection_record.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    frame_number = db.Column(db.Integer)
+    timestamp = db.Column(db.Float)
+    behavior = db.Column(db.String(50))
+    confidence = db.Column(db.Float)
+    M1 = db.Column(db.Boolean)  # 重心下降检测
+    M2 = db.Column(db.Boolean)  # 身体倾斜检测
+    M3 = db.Column(db.Boolean)  # 形状变化检测
+    center_gravity_speed = db.Column(db.Float)
+    body_tilt_angle = db.Column(db.Float)
+    contour_ratio = db.Column(db.Float)
+    acknowledged = db.Column(db.Boolean, default=False)
+    acknowledged_at = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime, default=datetime.datetime.now)
+
+# app.py:263
+class Alert(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    record_id = db.Column(db.Integer, db.ForeignKey('detection_record.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    alert_type = db.Column(db.String(50))
+    severity = db.Column(db.String(20))
+    message = db.Column(db.Text)
+    title = db.Column(db.String(100))
+    detection_type = db.Column(db.String(50))
+    confidence = db.Column(db.Float)
+    sent_to = db.Column(db.String(200))
+    sent_at = db.Column(db.DateTime, default=datetime.datetime.now)
+    acknowledged = db.Column(db.Boolean, default=False)
+    acknowledged_by = db.Column(db.Integer, db.ForeignKey('user.id'))
+    acknowledged_at = db.Column(db.DateTime)
+    response_action = db.Column(db.Text)
+
+# app.py:315
+class ConversationSession(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(100), nullable=False)
+    title = db.Column(db.String(200), nullable=False, default='新对话')
+    created_at = db.Column(db.DateTime, default=datetime.datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
+
+# app.py:333
+class ConversationHistory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    session_id = db.Column(db.Integer, db.ForeignKey('conversation_session.id'), nullable=False)
+    user_id = db.Column(db.String(100), nullable=False)
+    role = db.Column(db.String(20), nullable=False)  # 'user' or 'assistant'
+    content = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.datetime.now)
+
+# app.py:353
+class AnalysisRecord(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    original_filename = db.Column(db.String(255), nullable=False)
+    processed_filename = db.Column(db.String(255))
+    input_path = db.Column(db.String(500), nullable=False)
+    output_path = db.Column(db.String(500))
+    file_type = db.Column(db.String(20), nullable=False)
+    status = db.Column(db.String(20), default='processing')
+    total_frames = db.Column(db.Integer, default=0)
+    detected_frames = db.Column(db.Integer, default=0)
+    fall_detected = db.Column(db.Boolean, default=False)
+    alert_count = db.Column(db.Integer, default=0)
+    ai_analysis = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.datetime.now)
+    completed_at = db.Column(db.DateTime)
+```

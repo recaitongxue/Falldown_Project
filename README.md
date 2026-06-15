@@ -147,25 +147,25 @@
 
 ### 1.2.1 检测性能
 
-| 性能指标 | 目标值 | 说明 |
-|---------|-------|------|
-| 检测速度（快速模式） | ≥20 FPS | 每秒处理帧数 |
-| 检测速度（精确模式） | ≥5 FPS | 每秒处理帧数 |
-| 检测准确率 | ≥95% | 跌倒正确识别率 |
-| 误报率 | ≤5% | 正常行为误判为跌倒的比例 |
-| 漏报率 | ≤3% | 跌倒未被检测到的比例 |
-| 告警延迟 | ≤1秒 | 从跌倒发生到告警发出的时间 |
+| 性能指标             | 目标值   | 说明                       |
+| -------------------- | -------- | -------------------------- |
+| 检测速度（快速模式） | ≥20 FPS | 每秒处理帧数               |
+| 检测速度（精确模式） | ≥5 FPS  | 每秒处理帧数               |
+| 检测准确率           | ≥95%    | 跌倒正确识别率             |
+| 误报率               | ≤5%     | 正常行为误判为跌倒的比例   |
+| 漏报率               | ≤3%     | 跌倒未被检测到的比例       |
+| 告警延迟             | ≤1秒    | 从跌倒发生到告警发出的时间 |
 
 ### 1.2.2 系统性能
 
-| 性能指标 | 目标值 | 说明 |
-|---------|-------|------|
-| API响应时间 | ≤500ms | 除视频分析外的API请求 |
-| 视频上传速度 | ≥5MB/s | 网络环境允许的情况下 |
-| 最大并发用户 | ≥10 | 同时使用系统的用户数 |
-| 最大视频文件 | 500MB | 支持的最大上传文件大小 |
-| 页面加载时间 | ≤2秒 | 首页完整加载时间 |
-| 系统可用性 | ≥99% | 系统正常运行时间比例 |
+| 性能指标     | 目标值  | 说明                   |
+| ------------ | ------- | ---------------------- |
+| API响应时间  | ≤500ms | 除视频分析外的API请求  |
+| 视频上传速度 | ≥5MB/s | 网络环境允许的情况下   |
+| 最大并发用户 | ≥10    | 同时使用系统的用户数   |
+| 最大视频文件 | 500MB   | 支持的最大上传文件大小 |
+| 页面加载时间 | ≤2秒   | 首页完整加载时间       |
+| 系统可用性   | ≥99%   | 系统正常运行时间比例   |
 
 ### 1.2.3 兼容性要求
 
@@ -224,9 +224,7 @@ ST-GCN将人体骨骼关键点建模为图结构，利用图卷积操作同时�
 早期的跌倒检测方法主要基于背景建模和运动分析：
 
 1. **背景减除法**：通过建立背景模型，将运动前景从背景中分离出来，分析运动目标的形状、速度等特征判断是否跌倒。
-
 2. **光流法**：计算视频序列中像素的运动矢量，分析运动方向和速度的变化模式。
-
 3. **形状分析**：分析人体轮廓的形状变化，如宽高比、轮廓面积等指标。
 
 这些方法简单直观，但受环境影响较大，难以处理遮挡、阴影等情况。
@@ -236,11 +234,8 @@ ST-GCN将人体骨骼关键点建模为图结构，利用图卷积操作同时�
 近年来，深度学习方法在跌倒检测领域取得了显著进展：
 
 1. **Two-Stream网络**：利用双流网络分别处理空间和时间信息，融合RGB图像和光流图像进行动作识别。
-
 2. **姿态估计+规则判断**：首先利用OpenPose等姿态估计网络提取人体骨骼关键点，然后根据关键点位置变化判断是否跌倒。
-
 3. **时序模型**：利用LSTM、GRU等网络学习视频序列的时序特征，实现端到端的跌倒检测。
-
 4. **注意力机制**：引入时空注意力机制，使模型能够关注视频中的关键帧和关键区域，提高检测准确率。
 
 ### 2.2.3 相关论文算法分析
@@ -248,9 +243,7 @@ ST-GCN将人体骨骼关键点建模为图结构，利用图卷积操作同时�
 本系统采用的算法基于论文《基于深度学习的人体姿势跌倒检测算法》，该算法的主要思想是：
 
 1. **多特征融合**：综合考虑人体重心变化、身体倾斜角度、轮廓形状变化三个维度的特征。
-
 2. **时序分析**：通过分析连续多帧的特征变化，判断人体运动状态。
-
 3. **规则判决**：结合深度学习模型的输出和预设的规则，判断是否发生跌倒。
 
 这种方法能够有效降低误报率，提高检测的准确性。
@@ -272,27 +265,27 @@ ST-GCN将人体骨骼关键点建模为图结构，利用图卷积操作同时�
 
 **后端技术栈**：
 
-| 技术 | 版本 | 用途 |
-|------|------|------|
-| Python | 3.8+ | 编程语言 |
-| Flask | 2.3+ | Web框架 |
-| SQLAlchemy | 3.0+ | ORM工具 |
-| MySQL | 5.7+ | 关系数据库 |
-| PyTorch | 2.0+ | 深度学习框架 |
-| OpenCV | 4.8+ | 计算机视觉 |
-| FFmpeg | latest | 视频处理 |
-| Ollama | latest | 本地大模型 |
+| 技术       | 版本   | 用途         |
+| ---------- | ------ | ------------ |
+| Python     | 3.8+   | 编程语言     |
+| Flask      | 2.3+   | Web框架      |
+| SQLAlchemy | 3.0+   | ORM工具      |
+| MySQL      | 5.7+   | 关系数据库   |
+| PyTorch    | 2.0+   | 深度学习框架 |
+| OpenCV     | 4.8+   | 计算机视觉   |
+| FFmpeg     | latest | 视频处理     |
+| Ollama     | latest | 本地大模型   |
 
 **前端技术栈**：
 
-| 技术 | 版本 | 用途 |
-|------|------|------|
-| Vue | 3.4+ | 前端框架 |
-| Vite | 5.0+ | 构建工具 |
-| Vue Router | 4.0+ | 路由管理 |
-| Element Plus | 2.6+ | UI组件库 |
-| ECharts | 5.5+ | 数据可视化 |
-| Axios | 1.6+ | HTTP客户端 |
+| 技术         | 版本 | 用途       |
+| ------------ | ---- | ---------- |
+| Vue          | 3.4+ | 前端框架   |
+| Vite         | 5.0+ | 构建工具   |
+| Vue Router   | 4.0+ | 路由管理   |
+| Element Plus | 2.6+ | UI组件库   |
+| ECharts      | 5.5+ | 数据可视化 |
+| Axios        | 1.6+ | HTTP客户端 |
 
 ### 2.3.3 系统架构图
 
@@ -521,316 +514,560 @@ falldown/
 
 本系统采用的跌倒检测算法基于论文《基于深度学习的人体姿势跌倒检测算法》，采用**多特征融合+规则判决**的方法，综合考虑三个维度的特征进行跌倒判定。
 
-#### 3.2.1.1 M1 - 重心下降检测
+#### 3.2.1.1 M1 - 重心下降检测（CGDD）
 
 **算法原理**：
 
-人体在站立状态时，重心位于身体中上部；当发生跌倒时，重心会快速下移。通过跟踪人体重心的垂直位置变化，可以检测是否发生跌倒。
+人体在站立状态时，重心位于身体中上部；当发生跌倒时，重心会快速下移。通过跟踪人体重心的垂直位置变化，可以检测是否发生跌倒。CGDD（Center of Gravity Descent Detection）核心是计算重心下降速度。
 
 **计算方法**：
 
-1. 提取人体骨骼关键点（头、肩、手、髋、膝、脚等）
-2. 计算人体重心位置：通常使用髋部中心点作为重心的近似
-3. 计算重心下降速度：
+1. 提取人体骨骼关键点，使用髋部中心点作为重心近似位置
+2. 计算当前帧与历史帧的重心位置差：
 
 $$
-v_{cg} = \frac{y_{t} - y_{t-\Delta t}}{\Delta t}
+v_{cg} = \frac{|y_{t} - y_{t-\Delta t}|}{\Delta t}
 $$
 
-其中 $y_t$ 表示时刻 $t$ 的重心垂直坐标，$\Delta t$ 为时间间隔（通常取10帧）
-
-4. 跌倒判定：当 $v_{cg} > v_{cr}$ 时，M1标志位置为True
+3. 帧间隔 $\Delta t$ = 5帧（约0.25秒，假设帧率20FPS）
+4. 跌倒判定：当 $v_{cg} \geq V_{critical}$ 时，M1标志位置为True
 
 **阈值参数**：
 
-- 帧间隔 $\Delta t$ = 10帧
-- 速度阈值 $v_{cr}$ = 0.015像素/帧
+| 参数                     | 值        | 说明                           |
+| ------------------------ | --------- | ------------------------------ |
+| 帧间隔$\Delta t$       | 5帧       | 每5帧检测一次                  |
+| 速度阈值$V_{critical}$ | 0.009 m/s | 重心下降速度阈值（论文标准值） |
+| 时间间隔                 | 0.25秒    | 相邻检测点的时间差             |
 
-#### 3.2.1.2 M2 - 身体倾斜检测
+**核心代码实现**（[fall_detector.py](file:///d:/falldown/back/finallmodel/model/fall_detector.py)）：
+
+```python
+def cgdd_check(self, frame_interval: int = 5) -> Tuple[bool, float]:
+    """
+    CGDD - 重心下降检测 (Center of Gravity Descent Detection)
+    论文算法：检测间隔设置为每5个相邻帧检测1次，时间间隔约为0.25秒
+    """
+    if len(self.frame_history) < frame_interval + 1:
+        return False, 0.0
+
+    # 使用当前帧和frame_interval帧前的帧进行比较
+    joints1 = self.frame_history[-frame_interval - 1]
+    joints2 = self.frame_history[-1]
+
+    cg1 = self.calculate_center_of_gravity(joints1)
+    cg2 = self.calculate_center_of_gravity(joints2)
+
+    # 使用实际帧率计算时间间隔（秒）
+    delta_t = frame_interval / self.fps if self.fps > 0 else 0.033 * frame_interval
+  
+    # 计算重心下降速度（像素/秒）
+    speed_px = abs(cg2[1] - cg1[1]) / delta_t
+  
+    # 转换为米/秒（假设图像高度约为1米）
+    speed_mps = speed_px * 0.001
+
+    triggered = speed_mps >= self.V_CRITICAL  # 0.009 m/s
+    return triggered, speed_mps
+```
+
+#### 3.2.1.2 M2 - 身体倾斜检测（BTD）
 
 **算法原理**：
 
-人体在正常站立或坐着时，身体基本保持垂直状态；当发生跌倒时，身体会明显倾斜。通过计算身体与垂直方向的夹角，可以检测身体的倾斜程度。
+人体在正常站立或坐着时，身体基本保持垂直状态；当发生跌倒时，身体会明显倾斜。BTD（Body Tilt Detection）通过计算身体中轴线与垂直方向的夹角来判断倾斜程度。角度越小表示身体越接近水平（跌倒状态）。
 
 **计算方法**：
 
-1. 获取头部和脚部的关键点坐标
-2. 计算身体倾斜向量 $\vec{v}_{body} = (x_{head} - x_{foot}, y_{head} - y_{foot})$
+1. 获取头部关键点和腿部中心关键点
+2. 计算身体倾斜向量 $\vec{v}_{body} = (x_{head} - x_{leg}, y_{head} - y_{leg})$
 3. 计算与垂直方向的夹角：
 
 $$
-\theta = \arctan\left(\frac{|x_{head} - x_{foot}|}{y_{head} - y_{foot}}\right)
+\theta = \arctan\left(\frac{dx}{dy}\right) \times \frac{180}{\pi}
 $$
 
-4. 跌倒判定：当 $\theta > \theta_{cr}$ 时，M2标志位置为True
+其中 $dx = |x_{head} - x_{leg}|$，$dy = |y_{head} - y_{leg}|$
+
+4. 跌倒判定：当 $\theta < \theta_{cr}$ 时，M2标志位置为True（角度小于阈值表示身体接近水平）
 
 **阈值参数**：
 
-- 角度阈值 $\theta_{cr}$ = 60°
+| 参数                          | 值                | 说明                             |
+| ----------------------------- | ----------------- | -------------------------------- |
+| 角度阈值$\theta_{critical}$ | 45°              | 身体倾斜角度阈值                 |
+| 判定条件                      | $\theta < 45°$ | 小于阈值表示接近水平（跌倒状态） |
 
-#### 3.2.1.3 M3 - 轮廓变形检测
+**核心代码实现**（[fall_detector.py](file:///d:/falldown/back/finallmodel/model/fall_detector.py)）：
+
+```python
+def btd_check(self, joints: JointPoints) -> Tuple[bool, float]:
+    """
+    BTD - 身体倾斜检测 (Body Tilt Detection)
+    """
+    head = joints.head
+    leg_center = self.calculate_leg_center(joints)  # 膝盖和脚踝的中点
+
+    dx = abs(head[0] - leg_center[0])
+    dy = abs(head[1] - leg_center[1])
+
+    if dx < 1e-6:
+        angle = 90.0
+    else:
+        angle = math.degrees(math.atan(dy / dx))
+
+    # 角度越小表示越水平（跌倒状态）
+    triggered = angle < self.THETA_CRITICAL  # 45°
+    return triggered, angle
+```
+
+#### 3.2.1.3 M3 - 轮廓变形检测（SCDD）
 
 **算法原理**：
 
-人体在站立状态时，轮廓呈"高瘦"形状（高度远大于宽度）；当跌倒在地时，轮廓变成"矮胖"形状（宽度接近或超过高度）。通过分析人体轮廓的宽高比变化，可以检测轮廓的变形程度。
+人体在站立状态时，轮廓呈"高瘦"形状（高度远大于宽度）；当跌倒在地时，轮廓变成"矮胖"形状（宽度接近或超过高度）。SCDD（Shape Contour Deformation Detection）通过分析人体外接矩形的宽高比来判断轮廓变形程度。
 
 **计算方法**：
 
-1. 提取人体的外接矩形轮廓
+1. 使用所有有效关节点计算外接矩形bbox
 2. 计算宽高比：
 
 $$
 p = \frac{w}{h}
 $$
 
-其中 $w$ 为宽度，$h$ 为高度
+其中 $w$ 为外接矩形宽度，$h$ 为外接矩形高度
 
 3. 跌倒判定：当 $p > p_{cr}$ 时，M3标志位置为True
 
 **阈值参数**：
 
-- 比例阈值 $p_{cr}$ = 0.7
+| 参数                     | 值          | 说明                           |
+| ------------------------ | ----------- | ------------------------------ |
+| 比例阈值$p_{critical}$ | 1.0         | 宽高比阈值                     |
+| 判定条件                 | $p > 1.0$ | 宽度大于高度时触发（倒地状态） |
+
+**核心代码实现**（[fall_detector.py](file:///d:/falldown/back/finallmodel/model/fall_detector.py)）：
+
+```python
+def scdd_check(self, bbox: Tuple[int, int, int, int]) -> Tuple[bool, float]:
+    """
+    SCDD - 外形轮廓变形检测 (Shape Contour Deformation Detection)
+    """
+    xmin, ymin, xmax, ymax = bbox
+    width = xmax - xmin
+    height = ymax - ymin
+
+    if height < 1e-6:
+        ratio = 0
+    else:
+        ratio = width / height
+
+    triggered = ratio > self.P_CRITICAL  # 1.0
+    return triggered, ratio
+```
 
 #### 3.2.1.4 综合判定规则
 
-三个检测指标的关系：
+**判定条件**：
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                                                             │
-│    ┌─────────┐                                              │
-│    │  视频帧  │                                              │
-│    └────┬────┘                                              │
-│         │                                                   │
-│         ▼                                                   │
-│    ┌─────────┐   ┌─────────┐   ┌─────────┐                │
-│    │   M1    │   │   M2    │   │   M3    │                │
-│    │ 重心下降 │   │ 身体倾斜 │   │ 轮廓变形 │                │
-│    └───┬─────┘   └───┬─────┘   └───┬─────┘                │
-│        │              │              │                       │
-│        │              │              │                       │
-│        └──────────────┼──────────────┘                       │
-│                       │                                       │
-│                       ▼                                       │
-│              ┌─────────────────┐                            │
-│              │   综合判定逻辑   │                            │
-│              └─────────────────┘                            │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
+论文严格规定：三个条件**同时满足**才判定为跌倒
+
+| 条件 | 标识 | 阈值                      | 说明             |
+| ---- | ---- | ------------------------- | ---------------- |
+| CGDD | M1   | $v_{cg} \geq 0.009$ m/s | 重心下降速度达标 |
+| BTD  | M2   | $\theta < 45°$         | 身体倾斜角度达标 |
+| SCDD | M3   | $p > 1.0$               | 宽高比达标       |
 
 **判定逻辑**：
 
-| M1 | M2 | M3 | 判定结果 | 告警级别 |
-|----|----|----|---------|---------|
-| ✓ | ✓ | ✓ | 跌倒 | 严重告警 |
-| ✓ | ✓ | ✗ | 疑似跌倒 | 警告 |
-| ✓ | ✗ | ✓ | 疑似跌倒 | 警告 |
-| ✗ | ✓ | ✓ | 疑似跌倒 | 警告 |
-| ✓ | ✗ | ✗ | 正常活动（弯腰） | 不告警 |
-| ✗ | ✓ | ✗ | 正常活动（倾斜站立） | 不告警 |
-| ✗ | ✗ | ✓ | 正常活动（蹲下） | 不告警 |
-| ✗ | ✗ | ✗ | 正常 | 不告警 |
+| M1       | M2 | M3 | 判定结果       | 触发条件         |
+| -------- | -- | -- | -------------- | ---------------- |
+| ✓       | ✓ | ✓ | **跌倒** | 三个条件同时满足 |
+| ✓       | ✓ | ✗ | 正常活动       | 身体前倾但未倒地 |
+| ✓       | ✗ | ✓ | 正常活动       | 下蹲动作         |
+| ✗       | ✓ | ✓ | 正常活动       | 倾斜靠靠         |
+| 其他组合 | -  | -  | 正常活动       | 未满足跌倒条件   |
 
-**延迟确认机制**：
+**核心逻辑**：论文采用严格的**AND**运算，必须是 $M1 \cap M2 \cap M3$ 三个条件同时触发才判定为跌倒。这种设计显著降低了误报率。
 
-为避免误报，系统采用15秒延迟确认机制：
+**核心代码实现**（[fall_detector.py](file:///d:/falldown/back/finallmodel/model/fall_detector.py)）：
 
-1. 当检测到疑似跌倒（M1、M2、M3任一满足）时，启动计时器
-2. 如果在15秒内，状态恢复正常，则取消告警（视为正常活动）
-3. 如果15秒后仍处于跌倒状态，则发出正式告警
+```python
+class FallDetectionAlgorithm:
+    """
+    跌倒检测算法 - 论文参数:
+    - V_CRITICAL: 0.009 m/s (重心下降速度阈值)
+    - THETA_CRITICAL: 45° (身体倾斜角度阈值)
+    - P_CRITICAL: 1.0 (宽高比阈值)
+    - T_CRITICAL: 10秒 (跌倒后报警延迟时间)
+    """
+    V_CRITICAL = 0.009
+    THETA_CRITICAL = 45
+    P_CRITICAL = 1.0
+    T_CRITICAL = 10
+
+    def detect(self, frame: np.ndarray, joints: JointPoints) -> DetectionResult:
+        """执行跌倒检测 - 三个条件都满足才判定为跌倒"""
+        self.frame_idx += 1
+      
+        # 更新帧历史
+        self.frame_history.append(joints)
+        if len(self.frame_history) > self.history_size:
+            self.frame_history.pop(0)
+      
+        # 计算边界框（使用所有有效关节点）
+        points = joints.to_list()
+        x_coords = [p[0] for p in points if p[0] > 0]
+        y_coords = [p[1] for p in points if p[1] > 0]
+        bbox = (min(x_coords), min(y_coords), max(x_coords), max(y_coords))
+
+        # 执行三重检测
+        cgdd_triggered, cg_speed = self.cgdd_check(5)
+        btd_triggered, tilt_angle = self.btd_check(joints)
+        scdd_triggered, contour_ratio = self.scdd_check(bbox)
+
+        # 三个条件都满足才判定为跌倒
+        is_fall = cgdd_triggered and btd_triggered and scdd_triggered
+
+        # 更新跌倒历史用于计算置信度
+        self.fall_history.append(1 if is_fall else 0)
+        if len(self.fall_history) > 30:
+            self.fall_history.pop(0)
+
+        confidence = sum(self.fall_history) / len(self.fall_history)
+        return DetectionResult(is_fall=is_fall, ...)
+```
+
+**告警延迟机制**：
+
+为避免误报，系统采用延迟确认机制：
+
+| 参数                     | 值   | 说明                     |
+| ------------------------ | ---- | ------------------------ |
+| 延迟时间$T_{critical}$ | 10秒 | 跌倒后需要保持状态的时间 |
+| 历史窗口大小             | 30帧 | 用于计算置信度的历史帧数 |
+
+**处理流程**：
+
+1. 当检测到 $M1 \cap M2 \cap M3$ 满足时，记录首次触发帧
+2. 如果连续10秒内状态一直保持跌倒特征，则发出正式告警
+3. 如果10秒内状态恢复（任一条件不满足），则取消告警（视为正常活动如蹲下、系鞋带等）
+4. 置信度计算：取最近30帧中跌倒帧数占比作为置信度
 
 ### 3.2.2 行为识别模型
 
 #### 3.2.2.1 模型架构
 
-系统采用**GRU（门控循环单元）**网络进行时序行为识别，模型结构如下：
+系统采用**双向GRU（门控循环单元）**网络进行时序行为识别，模型名称为FallActionGRU。
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      GRU行为识别模型                            │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  输入层: 16帧 × 特征向量                                         │
-│           │                                                     │
-│           ▼                                                     │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │                    特征提取层                           │    │
-│  │              (预训练CNN backbone)                        │    │
-│  │                                                         │    │
-│  │   Input: [batch, 16, H, W, C]                          │    │
-│  │     ↓                                                   │    │
-│  │   CNN Feature Maps                                      │    │
-│  │     ↓                                                   │    │
-│  │   Global Average Pooling                                │    │
-│  │     ↓                                                   │    │
-│  │   Output: [batch, 16, 512]                             │    │
-│  └─────────────────────────────────────────────────────────┘    │
-│           │                                                     │
-│           ▼                                                     │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │                    时序建模层                           │    │
-│  │                                                         │    │
-│  │   GRU Layer 1: 512 → 128                                │    │
-│  │     ↓                                                   │    │
-│  │   GRU Layer 2: 128 → 128                                │    │
-│  │     ↓                                                   │    │
-│  │   Output: [batch, 128]                                  │    │
-│  └─────────────────────────────────────────────────────────┘    │
-│           │                                                     │
-│           ▼                                                     │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │                    分类输出层                           │    │
-│  │                                                         │    │
-│  │   Linear: 128 → 64                                      │    │
-│  │     ↓                                                   │    │
-│  │   ReLU + Dropout(0.3)                                  │    │
-│  │     ↓                                                   │    │
-│  │   Linear: 64 → 6 (行为类别数)                          │    │
-│  │     ↓                                                   │    │
-│  │   Softmax                                               │    │
-│  │     ↓                                                   │    │
-│  │   Output: [batch, 6] 概率分布                          │    │
-│  └─────────────────────────────────────────────────────────┘    │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+**核心代码实现**（[network.py](file:///d:/falldown/back/finallmodel/model/network.py)）：
+
+```python
+import torch
+import torch.nn as nn
+
+
+class FallActionGRU(nn.Module):
+    def __init__(self, input_size: int, hidden_size: int, num_layers: int, 
+                 num_classes: int, dropout: float):
+        super().__init__()
+        # 双向GRU层
+        self.gru = nn.GRU(
+            input_size=input_size,      # 69维特征向量
+            hidden_size=hidden_size,    # 128隐藏层维度
+            num_layers=num_layers,      # 2层GRU堆叠
+            batch_first=True,
+            dropout=dropout if num_layers > 1 else 0.0,
+            bidirectional=True,         # 双向GRU
+        )
+        # 分类头
+        self.cls = nn.Sequential(
+            nn.LayerNorm(hidden_size * 2),      # 双向输出需×2
+            nn.Linear(hidden_size * 2, hidden_size),
+            nn.ReLU(inplace=True),
+            nn.Dropout(dropout),
+            nn.Linear(hidden_size, num_classes),  # 7类行为
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """前向传播: [batch, seq_len, 69] -> [batch, 7]"""
+        out, _ = self.gru(x)          # [batch, seq_len, 256]
+        last = out[:, -1, :]          # 取最后时刻输出 [batch, 256]
+        return self.cls(last)         # [batch, 7]
 ```
 
-#### 3.2.2.2 行为类别定义
+**模型输入输出**：
 
-模型输出6类行为的概率分布：
+| 项目         | 规格 | 说明                                                        |
+| ------------ | ---- | ----------------------------------------------------------- |
+| 输入序列长度 | 24帧 | 连续24帧作为一个处理序列                                    |
+| 最小序列长度 | 8帧  | 少于8帧时不进行识别                                         |
+| 特征向量维度 | 69维 | 33关键点×2坐标 + 3额外特征                                 |
+| 行为类别数   | 7类  | empty, standing, sitting, lying, bending, crawling, falling |
 
-| 类别编号 | 英文标签 | 中文说明 |
-|---------|---------|---------|
-| 0 | empty | 空帧（无人） |
-| 1 | standing | 站立 |
-| 2 | sitting | 坐着 |
-| 3 | lying | 躺卧 |
-| 4 | bending | 弯腰 |
-| 5 | crawling | 爬行 |
+**特征向量构成（69维）**：
 
-#### 3.2.2.3 训练策略
+| 特征段         | 维度           | 内容                         |
+| -------------- | -------------- | ---------------------------- |
+| 33关键点坐标   | 66维           | 33个关键点的(x, y)归一化坐标 |
+| 重心Y坐标      | 1维            | 髋部中心Y坐标（归一化）      |
+| 身体倾斜角度   | 1维            | 角度/180°（归一化）         |
+| 宽高比         | 1维            | bbox宽度/高度                |
+| **总计** | **69维** | -                            |
 
-- **损失函数**：交叉熵损失（Cross-Entropy Loss）
-- **优化器**：Adam（学习率0.001）
-- **批大小**：32
-- **训练轮数**：100
-- **正则化**：Dropout（0.3）
-- **数据增强**：随机裁剪、颜色抖动、时间尺度变换
+**特征提取代码**（[fall_detector.py](file:///d:/falldown/back/finallmodel/model/fall_detector.py)）：
+
+```python
+def extract_features(self, pose_features: PoseFrameFeatures) -> np.ndarray:
+    """
+    从PoseFrameFeatures提取特征向量（69维）
+    特征向量格式: [33*2个归一化坐标 + cg_y + tilt_deg + wh_ratio]
+    """
+    # 关键点坐标 (33*2 = 66维)
+    kp = pose_features.keypoints.astype(np.float32).reshape(-1)
+  
+    # 额外特征 (3维)
+    extra = np.array([
+        float(pose_features.center_y),           # 重心Y坐标
+        float(pose_features.tilt_deg) / 180.0,   # 倾斜角度（归一化）
+        float(pose_features.wh_ratio),           # 宽高比
+    ], dtype=np.float32)
+  
+    # 组合特征向量（66 + 3 = 69维）
+    features = np.concatenate([kp, extra], axis=0)
+    return features
+```
+
+**模型结构**：
+
+| 层        | 输入维度 | 输出维度 | 参数                                |
+| --------- | -------- | -------- | ----------------------------------- |
+| GRU层1    | 69       | 128      | hidden_size=128, bidirectional=True |
+| GRU层2    | 128      | 128      | hidden_size=128, bidirectional=True |
+| Dropout   | -        | -        | dropout=0.2                         |
+| 全连接层1 | 256      | 128      | 双向输出需×2                       |
+| ReLU激活  | -        | -        | -                                   |
+| Dropout   | -        | -        | dropout=0.3                         |
+| 全连接层2 | 128      | 7        | num_classes=7                       |
+| Softmax   | -        | 7        | 输出概率分布                        |
+
+**行为类别定义**：
+
+| 类别编号 | 英文标签 | 中文说明     |
+| -------- | -------- | ------------ |
+| 0        | empty    | 空帧（无人） |
+| 1        | standing | 站立         |
+| 2        | sitting  | 坐着         |
+| 3        | lying    | 躺卧         |
+| 4        | bending  | 弯腰         |
+| 5        | crawling | 爬行         |
+| 6        | falling  | 跌倒         |
+
+#### 3.2.2.2 训练策略
+
+**模型训练配置**：
+
+| 参数     | 值               | 说明               |
+| -------- | ---------------- | ------------------ |
+| 损失函数 | CrossEntropyLoss | 交叉熵损失         |
+| 优化器   | Adam             | 学习率0.001        |
+| 批大小   | 32               | 每批次样本数       |
+| 训练轮数 | 100              | 完整遍历训练集次数 |
+| Dropout  | 0.2/0.3          | 防止过拟合         |
+| 序列长度 | 24帧             | 时序输入长度       |
+| 最小序列 | 8帧              | 触发识别的最小帧数 |
+
+**数据增强策略**：
+
+- 随机裁剪：增强模型对位置变化的鲁棒性
+- 颜色抖动：增强模型对光照变化的适应性
+- 时间尺度变换：增强模型对动作速度变化的适应性
+
+#### 3.2.2.3 模型加载与推理
+
+**模型加载代码**（[fall_detector.py](file:///d:/falldown/back/finallmodel/model/fall_detector.py)）：
+
+```python
+class BehaviorRecognitionModel:
+    """行为识别模型"""
+  
+    def __init__(self, model_path: str = None):
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.model_path = model_path or 'checkpoints/best_gru.pt'
+        self.model = None
+        self.sequence = deque(maxlen=24)  # 序列长度24帧
+        self.min_sequence_len = 8
+        self.class_names = ["empty", "standing", "sitting", "lying", 
+                           "bending", "crawling", "falling"]
+      
+        if os.path.exists(self.model_path):
+            self.load_model()
+  
+    def load_model(self):
+        """加载行为识别模型"""
+        self.model = FallActionGRU(
+            input_size=69,       # 33*2 + 3 = 69维
+            hidden_size=128,
+            num_layers=2,
+            num_classes=7,
+            dropout=0.2,
+        ).to(self.device)
+      
+        state = torch.load(self.model_path, map_location=self.device)
+        self.model.load_state_dict(state["state_dict"], strict=False)
+        self.model.eval()
+
+    def recognize(self, pose_features: PoseFrameFeatures) -> Tuple[str, float]:
+        """识别单帧行为"""
+        features = self.extract_features(pose_features)
+        self.sequence.append(features)
+      
+        if len(self.sequence) < self.min_sequence_len:
+            return "unknown", 0.0
+      
+        # 构建输入张量 [1, seq_len, 69]
+        x = torch.tensor(list(self.sequence), dtype=torch.float32)
+        x = x.unsqueeze(0).to(self.device)
+      
+        with torch.no_grad():
+            logits = self.model(x)           # [1, 7]
+            probs = torch.softmax(logits, dim=-1)
+            pred_idx = torch.argmax(probs, dim=-1).item()
+            confidence = probs[0, pred_idx].item()
+      
+        return self.class_names[pred_idx], confidence
+```
 
 ### 3.2.3 视频处理流程
 
 #### 3.2.3.1 完整处理流程
 
+**视频分析主流程**：
+
 ```
 输入视频文件
      │
      ▼
-┌─────────────────┐
-│  视频格式检查   │  检查编码格式、分辨率等
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│  FFmpeg解码     │  解码为原始帧
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│  帧提取与预处理 │  缩放到标准尺寸、归一化
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│  滑动窗口采样   │  每次取16帧作为一个序列
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────────────────────┐
-│       批量处理（每批32序列）      │
-│  ┌────────────────────────────┐ │
-│  │     深度学习模型推理        │ │
-│  │  1. CNN特征提取            │ │
-│  │  2. GRU时序建模            │ │
-│  │  3. Softmax分类            │ │
-│  └────────────────────────────┘ │
-└────────┬────────────────────────┘
-         │
-         ▼
-┌─────────────────────────────────┐
-│        跌倒规则检测              │
-│  ┌────────────────────────────┐ │
-│  │  计算M1/M2/M3指标           │ │
-│  │  应用延迟确认机制            │ │
-│  │  生成告警记录               │ │
-│  └────────────────────────────┘ │
-└────────┬────────────────────────┘
-         │
-         ▼
-┌─────────────────────────────────┐
-│        视频标注与输出            │
-│  ┌────────────────────────────┐ │
-│  │  绘制骨骼关键点             │ │
-│  │  绘制检测框和标签           │ │
-│  │  标注跌倒事件位置           │ │
-│  └────────────────────────────┘ │
-└────────┬────────────────────────┘
-         │
-         ▼
-┌─────────────────────────────────┐
-│        FFmpeg编码输出            │
-│  ┌────────────────────────────┐ │
-│  │  H.264视频编码              │ │
-│  │  AAC音频编码（如有）         │ │
-│  │  moov原子前置（流式播放）   │ │
-│  └────────────────────────────┘ │
-└────────┬────────────────────────┘
-         │
-         ▼
-    输出视频文件
+┌─────────────────────────────────────┐
+│        OpenCV VideoCapture          │
+│   提取帧率、分辨率、总帧数           │
+└────────────────┬────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────┐
+│           帧循环处理                 │
+│   按指定间隔读取帧（快速/精确模式）    │
+└────────────────┬────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────┐
+│        MediaPipe Pose提取            │
+│   提取33个骨骼关键点坐标             │
+│   计算center_y, tilt_deg, wh_ratio  │
+└────────────────┬────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────┐
+│         行为识别（GRU）              │
+│   提取69维特征向量                   │
+│   GRU时序建模 → 7类行为概率          │
+└────────────────┬────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────┐
+│         跌倒检测（三重判定）          │
+│   CGDD: 重心下降速度 ≥ 0.009 m/s     │
+│   BTD: 倾斜角度 < 45°              │
+│   SCDD: 宽高比 > 1.0               │
+│   判定: M1 ∧ M2 ∧ M3               │
+└────────────────┬────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────┐
+│          延迟确认机制                 │
+│   T_critical = 10秒                  │
+│   连续10秒满足条件 → 触发告警        │
+└────────────────┬────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────┐
+│          骨骼可视化绘制               │
+│   绘制33点骨架                       │
+│   标注行为标签和置信度                │
+└────────────────┬────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────┐
+│        FFmpeg编码输出                 │
+│   H.264编码 + moov原子前置           │
+│   输出带骨骼标注的视频文件            │
+└─────────────────────────────────────┘
 ```
+
+**检测模式说明**：
+
+| 模式     | 帧间隔   | 处理速度 | 适用场景           |
+| -------- | -------- | -------- | ------------------ |
+| 快速检测 | 跳帧处理 | ≥20 FPS | 实时监控、快速筛查 |
+| 精确检测 | 逐帧处理 | ≥5 FPS  | 离线分析、准确检测 |
 
 #### 3.2.3.2 骨骼关键点定义
 
-系统定义了17个人体骨骼关键点（基于COCO数据集格式）：
+系统使用**MediaPipe Pose**姿态估计模型，输出**33个人体骨骼关键点**（0-31索引）：
+
+| 索引 | 名称            | 中文说明 | 索引 | 名称             | 中文说明 |
+| ---- | --------------- | -------- | ---- | ---------------- | -------- |
+| 0    | NOSE            | 鼻子     | 17   | LEFT_PINKY       | 左小指   |
+| 1    | LEFT_EYE_INNER  | 左眼内侧 | 18   | RIGHT_PINKY      | 右小指   |
+| 2    | LEFT_EYE        | 左眼     | 19   | LEFT_INDEX       | 左食指   |
+| 3    | LEFT_EYE_OUTER  | 左眼外侧 | 20   | RIGHT_INDEX      | 右食指   |
+| 4    | RIGHT_EYE_INNER | 右眼内侧 | 21   | LEFT_THUMB       | 左拇指   |
+| 5    | RIGHT_EYE       | 右眼     | 22   | RIGHT_THUMB      | 右拇指   |
+| 6    | RIGHT_EYE_OUTER | 右眼外侧 | 23   | LEFT_HIP         | 左髋     |
+| 7    | LEFT_EAR        | 左耳     | 24   | RIGHT_HIP        | 右髋     |
+| 8    | RIGHT_EAR       | 右耳     | 25   | LEFT_KNEE        | 左膝     |
+| 9    | MOUTH_LEFT      | 左嘴角   | 26   | RIGHT_KNEE       | 右膝     |
+| 10   | MOUTH_RIGHT     | 右嘴角   | 27   | LEFT_ANKLE       | 左踝     |
+| 11   | LEFT_SHOULDER   | 左肩     | 28   | RIGHT_ANKLE      | 右踝     |
+| 12   | RIGHT_SHOULDER  | 右肩     | 29   | LEFT_HEEL        | 左脚跟   |
+| 13   | LEFT_ELBOW      | 左肘     | 30   | RIGHT_HEEL       | 右脚跟   |
+| 14   | RIGHT_ELBOW     | 右肘     | 31   | LEFT_FOOT_INDEX  | 左脚尖   |
+| 15   | LEFT_WRIST      | 左腕     | 32   | RIGHT_FOOT_INDEX | 右脚尖   |
+| 16   | RIGHT_WRIST     | 右腕     |      |                  |          |
+
+**骨骼连接定义**（用于绘制骨骼线）：
 
 ```
-        0: nose        (鼻子)
-        1: left_eye   (左眼)
-        2: right_eye  (右眼)
-        3: left_ear   (左耳)
-        4: right_ear  (右耳)
-        5: left_shoulder  (左肩)
-        6: right_shoulder (右肩)
-        7: left_elbow     (左肘)
-        8: right_elbow    (右肘)
-        9: left_wrist     (左手腕)
-       10: right_wrist    (右手腕)
-       11: left_hip      (左髋)
-       12: right_hip     (右髋)
-       13: left_knee     (左膝)
-       14: right_knee    (右膝)
-       15: left_ankle    (左踝)
-       16: right_ankle   (右踝)
+头部: NOSE → LEFT_EYE_INNER → LEFT_EYE → LEFT_EYE_OUTER → LEFT_EAR
+      NOSE → RIGHT_EYE_INNER → RIGHT_EYE → RIGHT_EYE_OUTER → RIGHT_EAR
+面部: MOUTH_LEFT ↔ MOUTH_RIGHT
+
+躯干: LEFT_SHOULDER ↔ RIGHT_SHOULDER (肩膀)
+      LEFT_SHOULDER → LEFT_HIP (左半身)
+      RIGHT_SHOULDER → RIGHT_HIP (右半身)
+      LEFT_HIP ↔ RIGHT_HIP (髋部)
+
+手臂: LEFT_SHOULDER → LEFT_ELBOW → LEFT_WRIST
+      RIGHT_SHOULDER → RIGHT_ELBOW → RIGHT_WRIST
+      LEFT_WRIST → LEFT_PINKY/LEFT_INDEX/LEFT_THUMB
+      RIGHT_WRIST → RIGHT_PINKY/RIGHT_INDEX/RIGHT_THUMB
+
+腿部: LEFT_HIP → LEFT_KNEE → LEFT_ANKLE → LEFT_HEEL → LEFT_FOOT_INDEX
+      RIGHT_HIP → RIGHT_KNEE → RIGHT_ANKLE → RIGHT_HEEL → RIGHT_FOOT_INDEX
 ```
 
-骨骼连接定义：
+**跌倒检测简化14点模型**：
 
-```
-   0 - 1 - 2 - 3 - 4      (头部)
-         │
-         5 - 6             (肩膀)
-         │     │
-         7     8           (肘部)
-         │     │
-         9    10           (手腕)
-         │
-        11 - 12           (髋部)
-         │     │
-        13    14          (膝部)
-         │     │
-        15    16          (踝部)
-```
+为提高跌倒检测效率，系统从33点中选取14个核心关键点进行跌倒判定：
+
+| 部位 | 关键点                               |
+| ---- | ------------------------------------ |
+| 头部 | head (鼻子)                          |
+| 肩部 | shoulder_center, left/right_shoulder |
+| 手臂 | left/right_elbow, left/right_hand    |
+| 髋部 | left/right_hip                       |
+| 腿部 | left/right_knee, left/right_ankle    |
 
 ## 3.3 数据库设计
 
@@ -914,130 +1151,109 @@ $$
 
 #### 3.3.2.1 User表（用户表）
 
-```sql
-CREATE TABLE user (
-    id INT AUTO_INCREMENT PRIMARY KEY COMMENT '用户ID',
-    username VARCHAR(100) NOT NULL UNIQUE COMMENT '用户名',
-    password VARCHAR(255) NOT NULL COMMENT '密码（加密存储）',
-    email VARCHAR(100) COMMENT '邮箱',
-    phone VARCHAR(20) COMMENT '电话号码',
-    role VARCHAR(20) NOT NULL DEFAULT 'user' COMMENT '角色：user-普通用户，admin-管理员',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    INDEX idx_username (username),
-    INDEX idx_role (role)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
-```
+| 字段名     | 类型         | 约束                      | 说明                              |
+| ---------- | ------------ | ------------------------- | --------------------------------- |
+| id         | INT          | PK, AUTO_INCREMENT        | 用户ID，自增主键                  |
+| username   | VARCHAR(100) | NOT NULL, UNIQUE          | 用户名，唯一                      |
+| password   | VARCHAR(255) | NOT NULL                  | 密码（加密存储）                  |
+| email      | VARCHAR(100) | NULL                      | 邮箱                              |
+| phone      | VARCHAR(20)  | NULL                      | 电话号码                          |
+| role       | VARCHAR(20)  | NOT NULL, DEFAULT 'user'  | 角色：user-普通用户，admin-管理员 |
+| created_at | DATETIME     | DEFAULT CURRENT_TIMESTAMP | 创建时间                          |
+
+**索引**：idx_username(username), idx_role(role)
 
 #### 3.3.2.2 DetectionRecord表（检测记录表）
 
-```sql
-CREATE TABLE detection_record (
-    id INT AUTO_INCREMENT PRIMARY KEY COMMENT '记录ID',
-    user_id INT COMMENT '用户ID（外键）',
-    camera_id INT COMMENT '摄像头ID（外键）',
-    filename VARCHAR(255) COMMENT '原始文件名',
-    file_path VARCHAR(500) NOT NULL COMMENT '文件路径',
-    output_path VARCHAR(500) COMMENT '输出视频路径',
-    total_frames INT DEFAULT 0 COMMENT '总帧数',
-    detected_frames INT DEFAULT 0 COMMENT '检测到的帧数',
-    fall_detected BOOLEAN DEFAULT FALSE COMMENT '是否检测到跌倒',
-    alert_count INT DEFAULT 0 COMMENT '告警次数',
-    status VARCHAR(20) DEFAULT 'pending' COMMENT '状态：pending-待处理，processing-处理中，completed-已完成',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    completed_at DATETIME COMMENT '完成时间',
-    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE SET NULL,
-    FOREIGN KEY (camera_id) REFERENCES camera(id) ON DELETE SET NULL,
-    INDEX idx_user_id (user_id),
-    INDEX idx_camera_id (camera_id),
-    INDEX idx_created_at (created_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='检测记录表';
-```
+| 字段名          | 类型         | 约束                      | 说明                                                      |
+| --------------- | ------------ | ------------------------- | --------------------------------------------------------- |
+| id              | INT          | PK, AUTO_INCREMENT        | 记录ID，自增主键                                          |
+| user_id         | INT          | FK → user.id             | 用户ID                                                    |
+| camera_id       | INT          | FK → camera.id           | 摄像头ID                                                  |
+| filename        | VARCHAR(255) | NULL                      | 原始文件名                                                |
+| file_path       | VARCHAR(500) | NOT NULL                  | 文件存储路径                                              |
+| output_path     | VARCHAR(500) | NULL                      | 输出视频路径                                              |
+| total_frames    | INT          | DEFAULT 0                 | 总帧数                                                    |
+| detected_frames | INT          | DEFAULT 0                 | 检测到的帧数                                              |
+| fall_detected   | BOOLEAN      | DEFAULT FALSE             | 是否检测到跌倒                                            |
+| alert_count     | INT          | DEFAULT 0                 | 告警次数                                                  |
+| status          | VARCHAR(20)  | DEFAULT 'pending'         | 状态：pending-待处理，processing-处理中，completed-已完成 |
+| created_at      | DATETIME     | DEFAULT CURRENT_TIMESTAMP | 创建时间                                                  |
+| completed_at    | DATETIME     | NULL                      | 完成时间                                                  |
+
+**索引**：idx_user_id(user_id), idx_camera_id(camera_id), idx_created_at(created_at)
 
 #### 3.3.2.3 AlertRecord表（告警记录表）
 
-```sql
-CREATE TABLE alert_record (
-    id INT AUTO_INCREMENT PRIMARY KEY COMMENT '告警ID',
-    detection_id INT COMMENT '检测记录ID（外键）',
-    user_id INT COMMENT '用户ID（外键）',
-    frame_number INT COMMENT '帧号',
-    timestamp FLOAT COMMENT '时间戳（秒）',
-    behavior VARCHAR(50) COMMENT '检测到的行为',
-    confidence FLOAT COMMENT '置信度',
-    M1 BOOLEAN DEFAULT FALSE COMMENT '重心下降检测指标',
-    M2 BOOLEAN DEFAULT FALSE COMMENT '身体倾斜检测指标',
-    M3 BOOLEAN DEFAULT FALSE COMMENT '轮廓变形检测指标',
-    center_gravity_speed FLOAT COMMENT '重心下降速度',
-    body_tilt_angle FLOAT COMMENT '身体倾斜角度',
-    contour_ratio FLOAT COMMENT '轮廓比例',
-    acknowledged BOOLEAN DEFAULT FALSE COMMENT '是否已确认',
-    acknowledged_at DATETIME COMMENT '确认时间',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    FOREIGN KEY (detection_id) REFERENCES detection_record(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE SET NULL,
-    INDEX idx_detection_id (detection_id),
-    INDEX idx_user_id (user_id),
-    INDEX idx_created_at (created_at),
-    INDEX idx_acknowledged (acknowledged)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='告警记录表';
-```
+| 字段名               | 类型        | 约束                      | 说明             |
+| -------------------- | ----------- | ------------------------- | ---------------- |
+| id                   | INT         | PK, AUTO_INCREMENT        | 告警ID，自增主键 |
+| detection_id         | INT         | FK → detection_record.id | 检测记录ID       |
+| user_id              | INT         | FK → user.id             | 用户ID           |
+| frame_number         | INT         | NULL                      | 帧号             |
+| timestamp            | FLOAT       | NULL                      | 时间戳（秒）     |
+| behavior             | VARCHAR(50) | NULL                      | 检测到的行为类别 |
+| confidence           | FLOAT       | NULL                      | 置信度           |
+| M1                   | BOOLEAN     | DEFAULT FALSE             | 重心下降检测指标 |
+| M2                   | BOOLEAN     | DEFAULT FALSE             | 身体倾斜检测指标 |
+| M3                   | BOOLEAN     | DEFAULT FALSE             | 轮廓变形检测指标 |
+| center_gravity_speed | FLOAT       | NULL                      | 重心下降速度值   |
+| body_tilt_angle      | FLOAT       | NULL                      | 身体倾斜角度值   |
+| contour_ratio        | FLOAT       | NULL                      | 轮廓宽高比例值   |
+| acknowledged         | BOOLEAN     | DEFAULT FALSE             | 是否已确认       |
+| acknowledged_at      | DATETIME    | NULL                      | 确认时间         |
+| created_at           | DATETIME    | DEFAULT CURRENT_TIMESTAMP | 创建时间         |
+
+**索引**：idx_detection_id(detection_id), idx_user_id(user_id), idx_created_at(created_at), idx_acknowledged(acknowledged)
 
 #### 3.3.2.4 ConversationSession表（对话会话表）
 
-```sql
-CREATE TABLE conversation_session (
-    id INT AUTO_INCREMENT PRIMARY KEY COMMENT '会话ID',
-    user_id VARCHAR(100) NOT NULL COMMENT '用户ID（user_id或admin）',
-    title VARCHAR(200) NOT NULL DEFAULT '新对话' COMMENT '会话标题',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    INDEX idx_user_id (user_id),
-    INDEX idx_updated_at (updated_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='对话会话表';
-```
+| 字段名     | 类型         | 约束                                | 说明                       |
+| ---------- | ------------ | ----------------------------------- | -------------------------- |
+| id         | INT          | PK, AUTO_INCREMENT                  | 会话ID，自增主键           |
+| user_id    | VARCHAR(100) | NOT NULL                            | 用户标识（user_id或admin） |
+| title      | VARCHAR(200) | NOT NULL, DEFAULT '新对话'          | 会话标题                   |
+| created_at | DATETIME     | DEFAULT CURRENT_TIMESTAMP           | 创建时间                   |
+| updated_at | DATETIME     | DEFAULT CURRENT_TIMESTAMP ON UPDATE | 更新时间                   |
+
+**索引**：idx_user_id(user_id), idx_updated_at(updated_at)
 
 #### 3.3.2.5 ConversationHistory表（对话历史表）
 
-```sql
-CREATE TABLE conversation_history (
-    id INT AUTO_INCREMENT PRIMARY KEY COMMENT '历史ID',
-    session_id INT COMMENT '会话ID（外键）',
-    user_id VARCHAR(100) NOT NULL COMMENT '用户ID',
-    role VARCHAR(20) NOT NULL COMMENT '角色：user-用户，assistant-助手',
-    content TEXT NOT NULL COMMENT '对话内容',
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '时间戳',
-    FOREIGN KEY (session_id) REFERENCES conversation_session(id) ON DELETE CASCADE,
-    INDEX idx_session_id (session_id),
-    INDEX idx_user_id (user_id),
-    INDEX idx_timestamp (timestamp)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='对话历史表';
-```
+| 字段名     | 类型         | 约束                          | 说明                            |
+| ---------- | ------------ | ----------------------------- | ------------------------------- |
+| id         | INT          | PK, AUTO_INCREMENT            | 历史ID，自增主键                |
+| session_id | INT          | FK → conversation_session.id | 会话ID                          |
+| user_id    | VARCHAR(100) | NOT NULL                      | 用户标识                        |
+| role       | VARCHAR(20)  | NOT NULL                      | 角色：user-用户，assistant-助手 |
+| content    | TEXT         | NOT NULL                      | 对话内容                        |
+| timestamp  | DATETIME     | DEFAULT CURRENT_TIMESTAMP     | 时间戳                          |
+
+**索引**：idx_session_id(session_id), idx_user_id(user_id), idx_timestamp(timestamp)
 
 #### 3.3.2.6 Camera表（摄像头表）
 
-```sql
-CREATE TABLE camera (
-    id INT AUTO_INCREMENT PRIMARY KEY COMMENT '摄像头ID',
-    name VARCHAR(100) NOT NULL COMMENT '摄像头名称',
-    location VARCHAR(200) COMMENT '安装位置',
-    camera_type VARCHAR(20) DEFAULT 'rtsp' COMMENT '类型：rtsp-网络摄像头，webcam-USB摄像头',
-    url VARCHAR(500) COMMENT 'RTSP地址或设备路径',
-    status VARCHAR(20) DEFAULT 'offline' COMMENT '状态：online-在线，offline-离线',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    INDEX idx_status (status)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='摄像头表';
-```
+| 字段名      | 类型         | 约束                      | 说明                                    |
+| ----------- | ------------ | ------------------------- | --------------------------------------- |
+| id          | INT          | PK, AUTO_INCREMENT        | 摄像头ID，自增主键                      |
+| name        | VARCHAR(100) | NOT NULL                  | 摄像头名称                              |
+| location    | VARCHAR(200) | NULL                      | 安装位置                                |
+| camera_type | VARCHAR(20)  | DEFAULT 'rtsp'            | 类型：rtsp-网络摄像头，webcam-USB摄像头 |
+| url         | VARCHAR(500) | NULL                      | RTSP地址或设备路径                      |
+| status      | VARCHAR(20)  | DEFAULT 'offline'         | 状态：online-在线，offline-离线         |
+| created_at  | DATETIME     | DEFAULT CURRENT_TIMESTAMP | 创建时间                                |
+
+**索引**：idx_status(status)
 
 #### 3.3.2.7 SystemConfig表（系统配置表）
 
-```sql
-CREATE TABLE system_config (
-    id INT AUTO_INCREMENT PRIMARY KEY COMMENT '配置ID',
-    config_key VARCHAR(100) NOT NULL UNIQUE COMMENT '配置键',
-    config_value TEXT COMMENT '配置值',
-    INDEX idx_config_key (config_key)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统配置表';
-```
+| 字段名       | 类型         | 约束               | 说明             |
+| ------------ | ------------ | ------------------ | ---------------- |
+| id           | INT          | PK, AUTO_INCREMENT | 配置ID，自增主键 |
+| config_key   | VARCHAR(100) | NOT NULL, UNIQUE   | 配置键，唯一     |
+| config_value | TEXT         | NULL               | 配置值           |
+
+**索引**：idx_config_key(config_key)
 
 ## 3.4 接口设计
 
@@ -1046,17 +1262,18 @@ CREATE TABLE system_config (
 #### 3.4.1.1 RESTful API设计原则
 
 1. **统一资源接口**：使用HTTP方法表示操作
+
    - GET：查询资源
    - POST：创建资源
    - PUT：更新资源
    - DELETE：删除资源
-
 2. **URL设计规范**
+
    - 使用名词复数形式：/users, /alerts
    - 使用小写字母和连字符：/video-analysis
    - 嵌套资源表示关联关系：/users/{id}/alerts
-
 3. **响应格式规范**
+
    ```json
    {
      "success": true,
@@ -1064,8 +1281,8 @@ CREATE TABLE system_config (
      "message": "操作成功"
    }
    ```
-
 4. **状态码规范**
+
    - 200：成功
    - 201：创建成功
    - 400：请求参数错误
@@ -1075,66 +1292,66 @@ CREATE TABLE system_config (
 
 #### 3.4.1.2 接口前缀
 
-| 环境 | 前缀 |
-|------|------|
-| 开发环境 | http://localhost:5000/api |
+| 环境     | 前缀                        |
+| -------- | --------------------------- |
+| 开发环境 | http://localhost:5000/api   |
 | 生产环境 | https://api.example.com/api |
 
 ### 3.4.2 核心接口列表
 
 #### 3.4.2.1 用户认证接口
 
-| 方法 | 路径 | 说明 | 请求参数 | 响应 |
-|------|------|------|---------|------|
-| POST | /api/auth/login | 用户登录 | username, password | user, token |
-| POST | /api/auth/logout | 用户登出 | - | success |
-| GET | /api/auth/current | 获取当前用户 | - | user |
+| 方法 | 路径              | 说明         | 请求参数           | 响应        |
+| ---- | ----------------- | ------------ | ------------------ | ----------- |
+| POST | /api/auth/login   | 用户登录     | username, password | user, token |
+| POST | /api/auth/logout  | 用户登出     | -                  | success     |
+| GET  | /api/auth/current | 获取当前用户 | -                  | user        |
 
 #### 3.4.2.2 视频分析接口
 
-| 方法 | 路径 | 说明 | 请求参数 | 响应 |
-|------|------|------|---------|------|
-| POST | /api/upload | 上传视频文件 | file | filename, filepath |
-| POST | /api/detect/file | 分析视频文件 | filepath, mode | results, alerts |
-| GET | /api/history | 获取检测历史 | page, per_page | items, total |
-| GET | /api/history/{id} | 获取检测详情 | - | record, alerts |
+| 方法 | 路径              | 说明         | 请求参数       | 响应               |
+| ---- | ----------------- | ------------ | -------------- | ------------------ |
+| POST | /api/upload       | 上传视频文件 | file           | filename, filepath |
+| POST | /api/detect/file  | 分析视频文件 | filepath, mode | results, alerts    |
+| GET  | /api/history      | 获取检测历史 | page, per_page | items, total       |
+| GET  | /api/history/{id} | 获取检测详情 | -              | record, alerts     |
 
 #### 3.4.2.3 告警管理接口
 
-| 方法 | 路径 | 说明 | 请求参数 | 响应 |
-|------|------|------|---------|------|
-| GET | /api/alerts | 获取告警列表 | - | data[] |
-| POST | /api/alerts/{id}/acknowledge | 确认告警 | - | success |
-| POST | /api/alerts/clear | 清空告警 | - | success |
+| 方法 | 路径                         | 说明         | 请求参数 | 响应    |
+| ---- | ---------------------------- | ------------ | -------- | ------- |
+| GET  | /api/alerts                  | 获取告警列表 | -        | data[]  |
+| POST | /api/alerts/{id}/acknowledge | 确认告警     | -        | success |
+| POST | /api/alerts/clear            | 清空告警     | -        | success |
 
 #### 3.4.2.4 AI助手接口
 
-| 方法 | 路径 | 说明 | 请求参数 | 响应 |
-|------|------|------|---------|------|
-| GET | /api/ai/sessions | 获取会话列表 | user_id | data[] |
-| POST | /api/ai/sessions | 创建新会话 | title, user_id | session |
-| DELETE | /api/ai/sessions/{id} | 删除会话 | - | success |
-| GET | /api/ai/sessions/{id}/history | 获取会话历史 | - | data[] |
-| POST | /api/ai/chat | 发送消息 | message, session_id | message |
+| 方法   | 路径                          | 说明         | 请求参数            | 响应    |
+| ------ | ----------------------------- | ------------ | ------------------- | ------- |
+| GET    | /api/ai/sessions              | 获取会话列表 | user_id             | data[]  |
+| POST   | /api/ai/sessions              | 创建新会话   | title, user_id      | session |
+| DELETE | /api/ai/sessions/{id}         | 删除会话     | -                   | success |
+| GET    | /api/ai/sessions/{id}/history | 获取会话历史 | -                   | data[]  |
+| POST   | /api/ai/chat                  | 发送消息     | message, session_id | message |
 
 #### 3.4.2.5 用户管理接口（管理员）
 
-| 方法 | 路径 | 说明 | 请求参数 | 响应 |
-|------|------|------|---------|------|
-| GET | /api/users | 获取用户列表 | page, per_page | items, total |
-| POST | /api/users | 创建用户 | username, password, email | user |
-| PUT | /api/users/{id} | 更新用户 | user fields | user |
-| DELETE | /api/users/{id} | 删除用户 | - | success |
-| POST | /api/users/{id}/reset-password | 重置密码 | - | success |
+| 方法   | 路径                           | 说明         | 请求参数                  | 响应         |
+| ------ | ------------------------------ | ------------ | ------------------------- | ------------ |
+| GET    | /api/users                     | 获取用户列表 | page, per_page            | items, total |
+| POST   | /api/users                     | 创建用户     | username, password, email | user         |
+| PUT    | /api/users/{id}                | 更新用户     | user fields               | user         |
+| DELETE | /api/users/{id}                | 删除用户     | -                         | success      |
+| POST   | /api/users/{id}/reset-password | 重置密码     | -                         | success      |
 
 #### 3.4.2.6 系统配置接口（管理员）
 
-| 方法 | 路径 | 说明 | 请求参数 | 响应 |
-|------|------|------|---------|------|
-| GET | /api/settings | 获取系统设置 | - | settings |
-| PUT | /api/settings | 更新系统设置 | settings | success |
-| GET | /api/ai/ollama/models | 获取Ollama模型列表 | - | models |
-| POST | /api/ai/ollama/models | 设置默认模型 | model | success |
+| 方法 | 路径                  | 说明               | 请求参数 | 响应     |
+| ---- | --------------------- | ------------------ | -------- | -------- |
+| GET  | /api/settings         | 获取系统设置       | -        | settings |
+| PUT  | /api/settings         | 更新系统设置       | settings | success  |
+| GET  | /api/ai/ollama/models | 获取Ollama模型列表 | -        | models   |
+| POST | /api/ai/ollama/models | 设置默认模型       | model    | success  |
 
 ### 3.4.3 接口调用示例
 
@@ -1203,11 +1420,8 @@ const chatData = await chatResp.json()
 Flask应用采用**单例模式**和**延迟加载**策略，确保系统资源的高效利用：
 
 1. **数据库连接**：使用SQLAlchemy ORM，通过连接池管理数据库连接，支持MySQL数据库的UTF-8编码（utf8mb4）
-
 2. **检测器实例**：采用延迟加载模式，在第一次使用时才初始化深度学习模型，避免应用启动时的长时间等待
-
 3. **AI智能体**：同样采用延迟加载模式，确保Ollama服务不可用时不影响系统其他功能
-
 4. **CORS配置**：启用跨域资源共享，支持前端应用跨域访问API
 
 ### 4.1.2 前端路由架构
@@ -1354,122 +1568,122 @@ AI智能体提供以下分析功能：
 
 ### 5.1.1 用户管理功能测试
 
-| 序号 | 测试用例 | 测试步骤 | 预期结果 | 实际结果 | 是否通过 |
-|------|---------|---------|---------|---------|---------|
-| 1 | 用户注册 | 输入用户名、密码、邮箱，点击注册 | 注册成功，提示创建用户 | - | - |
-| 2 | 用户登录 | 输入正确的用户名和密码 | 登录成功，跳转到首页 | - | - |
-| 3 | 登录失败 | 输入错误的密码 | 提示用户名或密码错误 | - | - |
-| 4 | 修改资料 | 修改邮箱和电话 | 保存成功，显示新信息 | - | - |
-| 5 | 管理员创建用户 | 管理员添加新用户 | 用户创建成功 | - | - |
-| 6 | 管理员删除用户 | 管理员删除指定用户 | 用户删除成功 | - | - |
-| 7 | 重置密码 | 管理员重置用户密码 | 密码重置成功 | - | - |
+| 序号 | 测试用例       | 测试步骤                         | 预期结果               | 实际结果 | 是否通过 |
+| ---- | -------------- | -------------------------------- | ---------------------- | -------- | -------- |
+| 1    | 用户注册       | 输入用户名、密码、邮箱，点击注册 | 注册成功，提示创建用户 | -        | -        |
+| 2    | 用户登录       | 输入正确的用户名和密码           | 登录成功，跳转到首页   | -        | -        |
+| 3    | 登录失败       | 输入错误的密码                   | 提示用户名或密码错误   | -        | -        |
+| 4    | 修改资料       | 修改邮箱和电话                   | 保存成功，显示新信息   | -        | -        |
+| 5    | 管理员创建用户 | 管理员添加新用户                 | 用户创建成功           | -        | -        |
+| 6    | 管理员删除用户 | 管理员删除指定用户               | 用户删除成功           | -        | -        |
+| 7    | 重置密码       | 管理员重置用户密码               | 密码重置成功           | -        | -        |
 
 ### 5.1.2 视频上传与分析测试
 
-| 序号 | 测试用例 | 测试步骤 | 预期结果 | 实际结果 | 是否通过 |
-|------|---------|---------|---------|---------|---------|
-| 1 | 正常上传MP4 | 选择50MB以内的MP4文件上传 | 上传成功，显示文件信息 | - | - |
-| 2 | 中文文件名 | 上传名为"测试视频.mp4"的文件 | 上传成功，文件正常处理 | - | - |
-| 3 | 拖拽上传 | 将文件拖拽到上传区域 | 文件被选中并上传 | - | - |
-| 4 | 文件过大 | 上传超过500MB的文件 | 提示文件过大 | - | - |
-| 5 | 格式错误 | 上传图片文件替代视频 | 提示文件格式错误 | - | - |
-| 6 | 快速检测模式 | 选择快速模式分析视频 | 检测完成，显示结果 | - | - |
-| 7 | 精确检测模式 | 选择精确模式分析视频 | 检测完成，结果更准确 | - | - |
-| 8 | 播放结果视频 | 点击播放检测后的视频 | 视频流畅播放，显示标注 | - | - |
+| 序号 | 测试用例     | 测试步骤                     | 预期结果               | 实际结果 | 是否通过 |
+| ---- | ------------ | ---------------------------- | ---------------------- | -------- | -------- |
+| 1    | 正常上传MP4  | 选择50MB以内的MP4文件上传    | 上传成功，显示文件信息 | -        | -        |
+| 2    | 中文文件名   | 上传名为"测试视频.mp4"的文件 | 上传成功，文件正常处理 | -        | -        |
+| 3    | 拖拽上传     | 将文件拖拽到上传区域         | 文件被选中并上传       | -        | -        |
+| 4    | 文件过大     | 上传超过500MB的文件          | 提示文件过大           | -        | -        |
+| 5    | 格式错误     | 上传图片文件替代视频         | 提示文件格式错误       | -        | -        |
+| 6    | 快速检测模式 | 选择快速模式分析视频         | 检测完成，显示结果     | -        | -        |
+| 7    | 精确检测模式 | 选择精确模式分析视频         | 检测完成，结果更准确   | -        | -        |
+| 8    | 播放结果视频 | 点击播放检测后的视频         | 视频流畅播放，显示标注 | -        | -        |
 
 ### 5.1.3 跌倒检测功能测试
 
-| 序号 | 测试用例 | 测试步骤 | 预期结果 | 实际结果 | 是否通过 |
-|------|---------|---------|---------|---------|---------|
-| 1 | 站立行为识别 | 视频中出现站立人物 | 识别为standing | - | - |
-| 2 | 坐下行为识别 | 视频中出现坐下的动作 | 识别为sitting | - | - |
-| 3 | 躺卧行为识别 | 视频中出现躺卧状态 | 识别为lying | - | - |
-| 4 | 弯腰行为识别 | 视频中出现弯腰动作 | 识别为bending | - | - |
-| 5 | 爬行行为识别 | 视频中出现爬行动作 | 识别为crawling | - | - |
-| 6 | 跌倒检测 | 视频中出现跌倒场景 | 生成跌倒告警，M1/M2/M3为true | - | - |
-| 7 | 误报测试 | 正常坐下、起身动作 | 不产生跌倒告警 | - | - |
-| 8 | 骨骼绘制 | 查看检测结果视频 | 骨骼关键点正确绘制 | - | - |
+| 序号 | 测试用例     | 测试步骤             | 预期结果                     | 实际结果 | 是否通过 |
+| ---- | ------------ | -------------------- | ---------------------------- | -------- | -------- |
+| 1    | 站立行为识别 | 视频中出现站立人物   | 识别为standing               | -        | -        |
+| 2    | 坐下行为识别 | 视频中出现坐下的动作 | 识别为sitting                | -        | -        |
+| 3    | 躺卧行为识别 | 视频中出现躺卧状态   | 识别为lying                  | -        | -        |
+| 4    | 弯腰行为识别 | 视频中出现弯腰动作   | 识别为bending                | -        | -        |
+| 5    | 爬行行为识别 | 视频中出现爬行动作   | 识别为crawling               | -        | -        |
+| 6    | 跌倒检测     | 视频中出现跌倒场景   | 生成跌倒告警，M1/M2/M3为true | -        | -        |
+| 7    | 误报测试     | 正常坐下、起身动作   | 不产生跌倒告警               | -        | -        |
+| 8    | 骨骼绘制     | 查看检测结果视频     | 骨骼关键点正确绘制           | -        | -        |
 
 ### 5.1.4 告警管理功能测试
 
-| 序号 | 测试用例 | 测试步骤 | 预期结果 | 实际结果 | 是否通过 |
-|------|---------|---------|---------|---------|---------|
-| 1 | 查看告警列表 | 进入告警中心页面 | 显示所有告警记录 | - | - |
-| 2 | 告警统计 | 查看告警统计卡片 | 显示各类告警数量 | - | - |
-| 3 | 确认告警 | 点击确认按钮处理告警 | 告警状态变为已处理 | - | - |
-| 4 | 筛选告警 | 按时间、类型筛选告警 | 显示符合条件的告警 | - | - |
-| 5 | 查看告警详情 | 点击告警查看详情 | 显示M1/M2/M3指标 | - | - |
-| 6 | 清空告警 | 点击清空全部按钮 | 所有告警被删除 | - | - |
+| 序号 | 测试用例     | 测试步骤             | 预期结果           | 实际结果 | 是否通过 |
+| ---- | ------------ | -------------------- | ------------------ | -------- | -------- |
+| 1    | 查看告警列表 | 进入告警中心页面     | 显示所有告警记录   | -        | -        |
+| 2    | 告警统计     | 查看告警统计卡片     | 显示各类告警数量   | -        | -        |
+| 3    | 确认告警     | 点击确认按钮处理告警 | 告警状态变为已处理 | -        | -        |
+| 4    | 筛选告警     | 按时间、类型筛选告警 | 显示符合条件的告警 | -        | -        |
+| 5    | 查看告警详情 | 点击告警查看详情     | 显示M1/M2/M3指标   | -        | -        |
+| 6    | 清空告警     | 点击清空全部按钮     | 所有告警被删除     | -        | -        |
 
 ### 5.1.5 AI助手功能测试
 
-| 序号 | 测试用例 | 测试步骤 | 预期结果 | 实际结果 | 是否通过 |
-|------|---------|---------|---------|---------|---------|
-| 1 | 简单对话 | 向AI助手提问"今天天气" | AI正常回复 | - | - |
-| 2 | 创建新会话 | 点击新对话按钮 | 创建新会话，切换到空白对话 | - | - |
-| 3 | 查看历史会话 | 查看会话列表 | 显示所有历史会话 | - | - |
-| 4 | 切换会话 | 点击历史会话 | 加载该会话的历史记录 | - | - |
-| 5 | 删除会话 | 点击删除按钮 | 会话及历史被删除 | - | - |
-| 6 | 系统数据分析 | 询问"分析最近的告警" | AI返回分析结果 | - | - |
-| 7 | 刷新页面 | 刷新浏览器后查看对话 | 历史记录仍存在 | - | - |
+| 序号 | 测试用例     | 测试步骤               | 预期结果                   | 实际结果 | 是否通过 |
+| ---- | ------------ | ---------------------- | -------------------------- | -------- | -------- |
+| 1    | 简单对话     | 向AI助手提问"今天天气" | AI正常回复                 | -        | -        |
+| 2    | 创建新会话   | 点击新对话按钮         | 创建新会话，切换到空白对话 | -        | -        |
+| 3    | 查看历史会话 | 查看会话列表           | 显示所有历史会话           | -        | -        |
+| 4    | 切换会话     | 点击历史会话           | 加载该会话的历史记录       | -        | -        |
+| 5    | 删除会话     | 点击删除按钮           | 会话及历史被删除           | -        | -        |
+| 6    | 系统数据分析 | 询问"分析最近的告警"   | AI返回分析结果             | -        | -        |
+| 7    | 刷新页面     | 刷新浏览器后查看对话   | 历史记录仍存在             | -        | -        |
 
 ### 5.1.6 权限控制测试
 
-| 序号 | 测试用例 | 测试步骤 | 预期结果 | 实际结果 | 是否通过 |
-|------|---------|---------|---------|---------|---------|
-| 1 | 未登录访问 | 直接访问首页URL | 重定向到登录页 | - | - |
-| 2 | 用户访问管理员 | 普通用户访问/admin/users | 重定向到用户首页 | - | - |
-| 3 | 管理员访问用户 | 管理员访问/user/upload | 重定向到管理员首页 | - | - |
-| 4 | 会话过期 | 清除session后操作 | 提示登录失效 | - | - |
+| 序号 | 测试用例       | 测试步骤                 | 预期结果           | 实际结果 | 是否通过 |
+| ---- | -------------- | ------------------------ | ------------------ | -------- | -------- |
+| 1    | 未登录访问     | 直接访问首页URL          | 重定向到登录页     | -        | -        |
+| 2    | 用户访问管理员 | 普通用户访问/admin/users | 重定向到用户首页   | -        | -        |
+| 3    | 管理员访问用户 | 管理员访问/user/upload   | 重定向到管理员首页 | -        | -        |
+| 4    | 会话过期       | 清除session后操作        | 提示登录失效       | -        | -        |
 
 ## 5.2 性能测试
 
 ### 5.2.1 响应时间测试
 
-| 测试项目 | 测试方法 | 目标值 | 实际值 | 是否达标 |
-|---------|---------|-------|-------|---------|
-| 登录API | 连续测试10次取平均值 | <300ms | - | - |
-| 上传文件API | 上传50MB文件测试 | <10s | - | - |
-| 查询告警列表 | 查询1000条记录 | <500ms | - | - |
-| AI对话响应 | 发送消息并等待回复 | <3s | - | - |
-| 页面首次加载 | 打开首页完全加载 | <2s | - | - |
+| 测试项目     | 测试方法             | 目标值 | 实际值 | 是否达标 |
+| ------------ | -------------------- | ------ | ------ | -------- |
+| 登录API      | 连续测试10次取平均值 | <300ms | -      | -        |
+| 上传文件API  | 上传50MB文件测试     | <10s   | -      | -        |
+| 查询告警列表 | 查询1000条记录       | <500ms | -      | -        |
+| AI对话响应   | 发送消息并等待回复   | <3s    | -      | -        |
+| 页面首次加载 | 打开首页完全加载     | <2s    | -      | -        |
 
 ### 5.2.2 视频检测性能测试
 
-| 测试视频 | 分辨率 | 时长 | 帧数 | 快速模式耗时 | 精确模式耗时 |
-|---------|-------|------|------|-------------|-------------|
-| 测试视频1.mp4 | 1920x1080 | 30s | 900帧 | - | - |
-| 测试视频2.mp4 | 1280x720 | 60s | 1800帧 | - | - |
-| 测试视频3.mp4 | 640x480 | 10s | 300帧 | - | - |
+| 测试视频      | 分辨率    | 时长 | 帧数   | 快速模式耗时 | 精确模式耗时 |
+| ------------- | --------- | ---- | ------ | ------------ | ------------ |
+| 测试视频1.mp4 | 1920x1080 | 30s  | 900帧  | -            | -            |
+| 测试视频2.mp4 | 1280x720  | 60s  | 1800帧 | -            | -            |
+| 测试视频3.mp4 | 640x480   | 10s  | 300帧  | -            | -            |
 
 ### 5.2.3 并发性能测试
 
 | 并发数 | 发送请求数 | 成功数 | 失败数 | 平均响应时间 |
-|-------|-----------|-------|-------|-------------|
-| 1 | 10 | - | - | - |
-| 5 | 50 | - | - | - |
-| 10 | 100 | - | - | - |
+| ------ | ---------- | ------ | ------ | ------------ |
+| 1      | 10         | -      | -      | -            |
+| 5      | 50         | -      | -      | -            |
+| 10     | 100        | -      | -      | -            |
 
 ## 5.3 界面测试
 
 ### 5.3.1 页面布局测试
 
-| 页面 | 测试项目 | 预期效果 | 实际效果 | 是否通过 |
-|------|---------|---------|---------|---------|
-| 首页 | 响应式布局 | 不同屏幕宽度自适应 | - | - |
-| 登录页 | 表单验证 | 错误输入提示 | - | - |
-| 上传页 | 拖拽效果 | 拖拽时视觉反馈 | - | - |
-| 告警页 | 数据展示 | 列表分页显示 | - | - |
-| AI助手 | 对话气泡 | 区分用户和AI消息 | - | - |
+| 页面   | 测试项目   | 预期效果           | 实际效果 | 是否通过 |
+| ------ | ---------- | ------------------ | -------- | -------- |
+| 首页   | 响应式布局 | 不同屏幕宽度自适应 | -        | -        |
+| 登录页 | 表单验证   | 错误输入提示       | -        | -        |
+| 上传页 | 拖拽效果   | 拖拽时视觉反馈     | -        | -        |
+| 告警页 | 数据展示   | 列表分页显示       | -        | -        |
+| AI助手 | 对话气泡   | 区分用户和AI消息   | -        | -        |
 
 ### 5.3.2 浏览器兼容性测试
 
-| 浏览器 | 版本 | 测试结果 |
-|-------|------|---------|
-| Chrome | 最新版 | - |
-| Firefox | 最新版 | - |
-| Edge | 最新版 | - |
-| Safari | 最新版 | - |
+| 浏览器  | 版本   | 测试结果 |
+| ------- | ------ | -------- |
+| Chrome  | 最新版 | -        |
+| Firefox | 最新版 | -        |
+| Edge    | 最新版 | -        |
+| Safari  | 最新版 | -        |
 
 ---
 
@@ -1508,11 +1722,8 @@ AI智能体提供以下分析功能：
 ### 6.1.2 技术创新点
 
 1. **多特征融合的跌倒检测**：创新性地融合重心下降、身体倾斜、轮廓变形三个维度的特征，显著提高检测准确率
-
 2. **延迟确认机制**：采用15秒延迟确认机制，有效降低误报率
-
 3. **本地AI集成**：创新性地将Ollama本地大模型集成到跌倒检测系统，提供智能分析和对话功能
-
 4. **中文路径处理**：采用UUID重命名策略，解决Windows系统中文文件名的编码问题
 
 ## 6.2 经验与体会
@@ -1522,33 +1733,23 @@ AI智能体提供以下分析功能：
 通过本项目的开发，获得了以下技术层面的经验和收获：
 
 1. **前后端分离架构**：深入理解了前后端分离架构的优势和实现方法，掌握了Flask和Vue3的开发技巧
-
 2. **深度学习应用**：学习了如何将深度学习模型集成到Web应用中，包括模型加载、推理优化等
-
 3. **数据库设计**：掌握了关系型数据库的设计原则和方法，能够设计合理的表结构和关联关系
-
 4. **API设计**：学习了RESTful API的设计规范，能够设计清晰、规范的接口
-
 5. **性能优化**：了解了Web应用的性能优化方法，包括前端渲染优化、后端响应优化等
 
 ### 6.2.2 工程层面收获
 
 1. **需求分析**：学会了从用户角度分析需求，将抽象需求转化为具体功能
-
 2. **模块化设计**：掌握了模块化设计思想，将复杂系统拆分为独立模块
-
 3. **代码规范**：养成了良好的编码习惯，注重代码可读性和可维护性
-
 4. **问题解决**：提高了调试和问题解决能力，能够快速定位和修复Bug
-
 5. **文档编写**：学会了编写技术文档，能够清晰表达设计思路和实现方案
 
 ### 6.2.3 团队协作收获
 
 1. **沟通能力**：提高了与用户、团队成员的沟通能力
-
 2. **时间管理**：学会了合理安排时间，确保项目进度
-
 3. **质量意识**：建立了质量意识，注重交付物的质量
 
 ## 6.3 改进方向
@@ -1556,41 +1757,29 @@ AI智能体提供以下分析功能：
 ### 6.3.1 功能扩展
 
 1. **移动端支持**：开发移动端App或小程序，提供更便捷的访问方式
-
 2. **实时通知**：集成短信、邮件、推送等通知方式，实现跌倒告警的实时推送
-
 3. **多语言支持**：添加英文等多语言界面，支持国际化
-
 4. **视频直播**：支持实时视频流的监控和检测
 
 ### 6.3.2 性能优化
 
 1. **模型加速**：使用TensorRT、ONNX等工具优化推理速度
-
 2. **模型量化**：对模型进行INT8量化，减少计算量和内存占用
-
 3. **边缘计算**：将模型部署到边缘设备，实现本地实时检测
-
 4. **缓存优化**：优化数据库查询，使用Redis等缓存技术
 
 ### 6.3.3 算法改进
 
 1. **更多姿态模型**：引入更多先进的人体姿态估计模型
-
 2. **自监督学习**：利用无标注数据进行自监督学习，提高模型泛化能力
-
 3. **多模态融合**：结合红外、热成像等多种传感器数据，提高检测准确性
-
 4. **个性化模型**：根据用户行为习惯，定制个性化检测模型
 
 ### 6.3.4 安全改进
 
 1. **数据加密**：对敏感数据进行加密存储和传输
-
 2. **身份认证**：引入更安全的身份认证机制，如JWT、OAuth等
-
 3. **权限细粒度**：实现更细粒度的权限控制
-
 4. **审计日志**：完善操作日志记录，便于安全审计
 
 ---
